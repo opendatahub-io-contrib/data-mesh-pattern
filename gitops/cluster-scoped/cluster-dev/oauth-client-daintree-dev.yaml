@@ -1,0 +1,9 @@
+---
+kind: OAuthClient
+apiVersion: oauth.openshift.io/v1
+metadata:
+  name: keycloak-broker-daintree-dev
+secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#BROKER_CLIENTSECRET>
+redirectURIs:
+  - "https://keycloak-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/auth/realms/daintree-dev/broker/openshift4/endpoint"
+grantMethod: prompt

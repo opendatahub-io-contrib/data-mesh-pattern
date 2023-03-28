@@ -1,0 +1,9 @@
+resources:
+- oauth-client-daintree-dev.yaml
+- operator-group-rainforest-ci-cd.yaml
+- operator-group-daintree-dev.yaml
+- operator-group-pachyderm.yaml
+- rolebinding-admin-0.yaml
+- rolebinding-image-puller.yaml
+- rolebinding-jhub-flink.yaml
+- kubelet-config.yaml

@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pachyderm-operator
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: pachyderm
+    server: 'https://kubernetes.default.svc'
+  project: rainforest
+  source:
+    path: gitops/pachyderm/operator
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true
+    - CreateNamespace=true

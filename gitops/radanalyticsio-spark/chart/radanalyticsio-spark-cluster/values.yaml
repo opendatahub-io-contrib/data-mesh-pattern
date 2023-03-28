@@ -1,0 +1,8 @@
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  operatorName: ""
+teams: []

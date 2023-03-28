@@ -1,0 +1,4 @@
+teams:
+  rainforest-dev:
+      namespace: rainforest-ci-cd
+      enabled: true

@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "superset.fullname" . }}
+  labels:
+    {{- include "superset.labels" . | nindent 4 }}
+data:
+  superset_config.py: |
+    import os
+    import requests
+    from flask_appbuilder.security.manager import AUTH_OID, AUTH_REMOTE_USER, AUTH_DB, AUTH_LDAP, AUTH_OAUTH
+    from superset.security import SupersetSecurityManager
+    from flask_login import login_user
+    from urllib.parse import quote
+    from flask_appbuilder.views import expose
+    from flask import request, redirect
+
+    MAPBOX_API_KEY = os.getenv('MAPBOX_API_KEY', '')
+
+    db_username = os.environ['POSTGRESQL_USERNAME']
+    db_password = os.environ['POSTGRESQL_PASSWORD']
+    db_name = os.environ['POSTGRESQL_DATABASE']
+    SQLALCHEMY_DATABASE_URI = (f'postgresql://{db_username}:'
+                            f'{db_password}@supersetdb:5432/{db_name}')
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY', '')
+    DATA_DIR = '/var/lib/superset'
+    LOG_LEVEL = 'INFO'
+    FEATURE_FLAGS = {
+        'ENABLE_TEMPLATE_PROCESSING': True,
+    }
+
+    SUPERSET_WEBSERVER_PROTOCOL = 'https'
+    ENABLE_PROXY_FIX = True
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 15,
+        'pool_timeout': 60,
+        'pool_recycle': 3600
+    }
+
+    # Set Webserver timeout to 30 minutes to wait for the queries to be executed
+    SUPERSET_WEBSERVER_TIMEOUT = 1800
+
+    SYSTEM_CERT_BUNDLE = '/etc/ssl/certs/ca-bundle.crt'
+    CLUSTER_CERT_BUNDLE = '/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+    COMBINED_CERT_BUNDLE = '/tmp/superset-combined-cert-bundle.crt'
+
+    with open(COMBINED_CERT_BUNDLE, 'a+') as combined:
+        with open(SYSTEM_CERT_BUNDLE) as sys_bundle:
+            combined.write(sys_bundle.read())
+
+        with open(CLUSTER_CERT_BUNDLE) as clus_bundle:
+            combined.write(clus_bundle.read())
+
+    os.environ['CURL_CA_BUNDLE'] = COMBINED_CERT_BUNDLE
+
+    # force users to re-auth after 6 hours of inactivity (to keep roles in sync)
+    PERMANENT_SESSION_LIFETIME = 21600
+
+    # Keycloak config
+    OAUTH_PROVIDERS = [{
+        "name": "keycloak",
+        "icon": "fa-key",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": "{{ .Values.auth.client_id }}",
+            "client_secret": "{{ .Values.auth.client_secret }}",
+            "api_base_url": "{{ .Values.auth.base_url }}",
+            "client_kwargs": {
+                "scope": "email profile"
+            },
+            "access_token_url": "{{ .Values.auth.token_uri }}",
+            "authorize_url": "{{ .Values.auth.oidc_auth_url }}",
+            "logout_redirect_url": "{{ .Values.auth.logout_redirect_url }}",
+            "request_token_url": None,
+        },
+    }]
+
+    AUTH_TYPE = AUTH_OAUTH
+    AUTH_ROLES_SYNC_AT_LOGIN = True
+    # these are 1:1 with superset (for now, can customize). and are set from role_keys in fab.
+    AUTH_ROLES_MAPPING = {
+        "Admin": ["Admin"],
+        "Gamma": ["Gamma"],
+        "Public": ["Public"],
+        "Alpha": ["Alpha"],
+        "granter": ["granter"],
+        "sql_lab": ["sql_lab"]
+    }
+
+    class CustomSecurityManager(SupersetSecurityManager):
+
+        def oauth_user_info(self, provider, response=None):
+            info = self.appbuilder.sm.oauth_remotes[provider].get('openid-connect/userinfo')
+            print(info.json())
+            data = info.json()
+            roles = [{{ .Values.auth.default_role | quote }}] # default role
+            try:
+                roles = data.get('resource_access').get({{ .Values.auth.client_id | quote }}).get('roles')
+                print("sso roles=%s" % roles) 
+            except:
+                print("Failed to get roles, using default")
+
+            return {
+                "username": data.get("preferred_username", ""),
+                "first_name": data.get("given_name", ""),
+                "last_name": data.get("family_name", ""),
+                "email": data.get("email", ""),
+                "role_keys": roles
+            }
+
+        def auth_user_oauth(self, info):
+            user = super(CustomSecurityManager, self).auth_user_oauth(info)
+            if user is not None:
+                for rk in info['role_keys']:
+                    role = self.find_role(rk)
+                    if role is not None and role not in user.roles:
+                        user.roles.append(role)
+                self.update_user(user)  # update user roles
+            else:
+                user = self.add_user(info.get('username'), info.get('first_name', ''), info.get('last_name', ''),
+                                   info.get('email'), [self.find_role(role) for role in info.get('role_keys', [{{ .Values.auth.default_role | quote }}])])
+            return user;
+
+    CUSTOM_SECURITY_MANAGER = CustomSecurityManager

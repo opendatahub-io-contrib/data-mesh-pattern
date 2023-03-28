@@ -1,0 +1,40 @@
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  name: daintree-dev
+  labels:
+    realm: daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realm:
+    id: "daintree-dev"
+    realm: "daintree-dev"
+    enabled: true
+    displayName: "Rainforest Team daintree-dev Single Sign On Realm"
+    loginWithEmailAllowed: false
+    registrationAllowed: false
+    registrationEmailAsUsername: false
+    rememberMe: true
+    sslRequired: "external"
+    verifyEmail: false
+    identityProviders:
+      - addReadTokenRoleOnCreate: false
+        alias: openshift4
+        providerId: openshift-v4
+        enabled: true
+        firstBrokerLoginFlowAlias: first broker login
+        linkOnly: false
+        storeToken: false
+        trustEmail: true
+        config:
+          baseUrl: "https://api.foo.sandbox1234.opentlc.com:6443"
+          clientId: keycloak-broker-daintree-dev
+          syncMode: IMPORT
+          clientSecret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#BROKER_CLIENTSECRET>
+          defaultScope: "user:full"
+          useJwksUrl: "true"
+  instanceSelector:
+    matchLabels:
+      app: keycloak

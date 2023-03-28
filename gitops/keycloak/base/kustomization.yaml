@@ -1,0 +1,7 @@
+resources:
+- Subscription.yaml
+- Keycloak.yaml
+
+commonLabels:
+  opendatahub.io/component: "false"
+  component.opendatahub.io/name: "keycloak"

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- mysql.yaml
+- mysql-init-scripts.yaml
+- openmetadata-dependencies-config-envs.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - files:
+      - files/db_migrations.py
+    name: airflow-db-migrations

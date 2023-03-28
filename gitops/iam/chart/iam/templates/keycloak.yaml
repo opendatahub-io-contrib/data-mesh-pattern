@@ -1,0 +1,37 @@
+{{- if .Values.users }}
+{{ $realm := .Values.realm }}
+{{ $ssoNamespace := .Values.ssoNamespace }}
+{{- range $user := .Values.users }}
+{{- if .federatedIdentities.create }}
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakUser
+metadata:
+  name: {{ printf "%s-%s" .username $realm }}
+  namespace: {{ $ssoNamespace }}
+spec:
+  user:
+    username: {{ .username | quote }}
+    firstName: {{ .firstName | quote }}
+    lastName: {{ .lastName | quote }}
+    email: {{ .email | quote }}
+    enabled: {{ .enabled | default "True" }}
+    emailVerified:  {{ .emailVerified | default "True" }}
+    federatedIdentities:
+      - identityProvider: {{ .federatedIdentities.identityProvider | default "openshift4" | quote }}
+        userId:  {{ .federatedIdentities.userId | quote }}
+        userName: {{ .federatedIdentities.username | default .username | quote }}
+    clientRoles:
+{{- if eq .clientRole "adminRole" }}
+{{- include "adminRole" . | nindent 6 }}
+{{- else if eq .clientRole "dsRole" }}
+{{- include "dsRole" . | nindent 6 }}
+{{- else }}
+{{- include "viewRole" . | nindent 6 }}
+{{- end }}
+  realmSelector:
+    matchLabels:
+      realm: {{ $realm }}
+{{- end }}
+{{- end }}
+{{- end }}

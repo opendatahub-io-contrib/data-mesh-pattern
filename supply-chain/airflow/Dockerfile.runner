@@ -1,0 +1,39 @@
+FROM localhost/airflow-base:latest
+
+USER root
+
+RUN rm -f /usr/bin/oc && \
+    curl -sL https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.11.1/openshift-client-linux.tar.gz | tar -C /usr/local/bin -xzf -
+
+# curl -H 'Cache-Control: no-cache' -L https://raw.githubusercontent.com/elyra-ai/elyra/v3.6.0/etc/generic/requirements-elyra.txt --output requirements-elyra.txt
+COPY scripts/airflow-runner/requirements-elyra.txt /elyra-deps/requirements-elyra.txt
+COPY scripts/airflow-runner/requirements-elyra-py37.txt /elyra-deps/requirements-elyra-py37.txt
+
+USER 1001
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir packaging
+
+# Elyra dependencies
+RUN pip install --no-cache-dir -r /elyra-deps/requirements-elyra.txt
+
+# Additional dependencies
+RUN pip install --no-cache-dir openshift-client==1.0.13
+RUN pip install --no-cache-dir jinja2==3.0.3
+RUN pip install --no-cache-dir minio==7.1.8
+RUN pip install --no-cache-dir boto3==1.24.5
+RUN pip install --no-cache-dir nbconvert==6.2.0
+RUN pip install --no-cache-dir mlflow==2.1.1
+
+# speddup build - extra airflow runtime model deps
+RUN /opt/app-root/bin/pip3 install install cloudpickle==2.0.0 joblib==1.1.0 numpy==1.23.1 psutil==5.9.0 scikit-learn==1.1.1 scipy==1.8.1 threadpoolctl==3.1.0 typing-extensions==3.10.0.2
+
+# patches for minio region
+COPY scripts/airflow-runner/airflow/bootstrapper.py /opt/app-root/lib/python3.8/site-packages/elyra/airflow/bootstrapper.py
+COPY scripts/airflow-runner/kfp/bootsrapper.py /opt/app-root/lib/python3.8/site-packages/elyra/kfp/bootstrapper.py
+COPY scripts/airflow-runner/cos.py /opt/app-root/lib/python3.8/site-packages/elyra/util/cos.py
+
+ENV OPENSHIFT_CLIENT_PYTHON_DEFAULT_OC_PATH=/usr/local/bin/oc
+ENV OPENSHIFT_CLIENT_PYTHON_DEFAULT_OC_LOGLEVEL=10
+ENV OPENSHIFT_CLIENT_PYTHON_DEFAULT_SKIP_TLS_VERIFY=true
+

@@ -1,0 +1,6 @@
+<ivysettings>
+<settings defaultResolver="nexus"/>
+<resolvers>
+<ibiblio name="nexus" m2compatible="true" root="https://your-dep-repo:443/artifactory/mavencentralrepo/"/>
+</resolvers>
+</ivysettings>

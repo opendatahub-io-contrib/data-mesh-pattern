@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "airflowweb.fullname" . }}
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      {{- include "airflowweb.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: {{ .Values.metrics.path | quote }}
+      interval: {{ .Values.metrics.interval | quote }}

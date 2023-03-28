@@ -1,0 +1,103 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: elyra-base
+  name: elyra-base
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: elyra-base-1
+  name: elyra-base-1
+spec:
+  completionDeadlineSeconds: 3600
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "2Gi"
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: elyra-base:0.1.5
+  postCommit: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    type: Git
+    contextDir: supply-chain/elyra
+    sourceSecret:
+      name: git-auth
+  strategy:
+    dockerStrategy:
+      dockerfilePath: base/0.1.5/Dockerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: 7uqdp8XlkT-IteMISzpt
+    type: GitHub
+  - generic:
+      secret: gR5-Dtb1Ie_6ILQrEcWd
+    type: Generic
+  - type: ConfigChange
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: elyra-base-2
+  name: elyra-base-2
+spec:
+  completionDeadlineSeconds: 3600
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "2Gi"
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: elyra-base:0.2.1
+  postCommit: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    type: Git
+    contextDir: supply-chain/elyra
+    sourceSecret:
+      name: git-auth
+  strategy:
+    dockerStrategy:
+      dockerfilePath: base/0.2.1/Dockerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+    - github:
+        secret: 7uqdp8XlkT-IteMISzpt
+      type: GitHub
+    - generic:
+        secret: gR5-Dtb1Ie_6ILQrEcWd
+      type: Generic
+    - type: ConfigChange

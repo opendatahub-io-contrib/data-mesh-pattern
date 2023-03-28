@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "airflowredis.fullname" . }}
+  labels:
+    {{- include "airflowredis.labels" . | nindent 4 }}
+spec:
+  serviceName: airflow-redis-headless
+  replicas: {{ .Values.replicaCountRedis }}
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "airflowredis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "airflowredis.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: airflow-redis
+      affinity:
+        podAffinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "airflowredis.selectorLabels" . | nindent 20 }}
+                namespaces:
+                  - {{ .Release.Namespace }}
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+      containers:
+        - name: airflow-redis
+          image: {{ .Values.imageRedis.repository }}:{{ .Values.imageRedis.tag }}
+          imagePullPolicy:  {{ .Values.imageRedis.pullPolicy }}
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+          ports:
+            - name: redis
+              containerPort: 6379
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            tcpSocket: 
+              port: 6379
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            tcpSocket: 
+              port: 6379
+          resources:
+            {{- toYaml .Values.resourcesRedis | nindent 12 }}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /var/lib/redis/data
+              subPath:
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        {{- with .Values.redis.accessModes }}
+        accessModes:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.redis.storage | quote }}

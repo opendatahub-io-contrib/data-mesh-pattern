@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+</head>
+<body>
+  <div class="team-name-form">
+      <div class="team-inputs">
+        <label for="tname">Team Name</label><br/>
+        <input type="text" id="tname" name="teamname" placeholder="Your team name..">
+      </div>
+
+      <div class="team-inputs">
+        <label for="cdomain">Cluster Domain</label><br/>
+        <input type="text" id="cdomain" name="clusterdomain" placeholder="Your cluster domain..">
+      </div>
+
+      <div class="team-inputs">
+        <label for="gitserver">Git Server</label><br/>
+        <input type="text" id="gitserver" name="gitserver" placeholder="Your git server..">
+      </div>
+
+      <div class="">
+        <button class="storage-btns" onclick="setNamesInStorage()">Save</button>
+        <button class="storage-btns" onclick="clearStorage()">Clear</button>
+      </div>
+  </div>
+
+  <div id="app"></div>
+    
+  <script>
+    document.getElementById("tname").value = localStorage.getItem('TEAM_NAME') ? localStorage.getItem('TEAM_NAME') : '';
+    document.getElementById("cdomain").value = localStorage.getItem('CLUSTER_DOMAIN') ? localStorage.getItem('CLUSTER_DOMAIN') : '';
+    document.getElementById("gitserver").value = localStorage.getItem('GIT_SERVER') ? localStorage.getItem('GIT_SERVER') : '';
+
+    function setNamesInStorage () {
+      let tname = document.getElementById('tname').value.toLowerCase();
+      let cdomain = (document.getElementById('cdomain').value.toLowerCase().indexOf('https://') > -1) 
+                    ? document.getElementById('cdomain').value.toLowerCase().substring(8) 
+                    : document.getElementById('cdomain').value.toLowerCase();
+      let gitserver = (document.getElementById('gitserver').value.toLowerCase().indexOf('https://') > -1) 
+                    ? document.getElementById('gitserver').value.toLowerCase().substring(8) 
+                    : document.getElementById('gitserver').value.toLowerCase();
+
+      // Check inputs
+      if (tname == '') {        
+        alert('Please enter a team name');
+        return;
+      }
+      if (cdomain == '') {        
+        alert('Please enter a cluster domain');
+        return;
+      }
+
+      console.info('INFO - setting team, cluster and git to :', tname, cdomain, gitserver);
+      localStorage.setItem('TEAM_NAME', tname);
+      localStorage.setItem('CLUSTER_DOMAIN', cdomain);
+      // gitserver is not nullable
+      if (gitserver !== '') {
+        localStorage.setItem('GIT_SERVER', gitserver);
+      } else {
+        // Default GitLab Server
+        localStorage.setItem('GIT_SERVER', 'gitlab-ce.' + cdomain);
+      }
+      location.reload();
+    }
+
+    function clearStorage () {
+      console.info('INFO - clearing team and cluster');
+      localStorage.removeItem('TEAM_NAME');
+      localStorage.removeItem('CLUSTER_DOMAIN');
+      localStorage.removeItem('GIT_SERVER');
+      document.getElementById('tname').value = '';
+      document.getElementById('cdomain').value = '';
+      document.getElementById('gitserver').value = '';
+      location.reload();
+    }
+
+    window.$docsify = {
+      auto2top: true,
+      executeScript: true,
+      name: 'Rainforest Lab',
+      repo: 'https://github.com/eformat/rainforest-docs',
+      loadSidebar: true,
+      subMaxLevel: 0,
+      sidebarDisplayLevel: 0,
+      alias: {
+      '/.*/_sidebar.md': '/_sidebar.md'
+      },
+      copyCode: {
+        buttonText : '✂️',
+        errorText  : '😔',
+        successText: '💚 copied'
+      },
+      pagination: {
+        crossChapter: true
+    },
+      plugins: [
+        function(hook) {
+          hook.beforeEach(function(content) {
+
+            fetch('config/all.json').then(function(response) {
+              return response.json();
+            }).then(function(jsonData) {
+              console.info("🥳 YAY! Found the config file 🥳", jsonData);
+              document.getElementById('crw_dev_filelocation_4.11').setAttribute('href', jsonData.devfile411);
+              document.getElementById('crw_dev_filelocation_4.11').innerHTML = jsonData.devfile411;
+            }).catch(function(err) {
+              console.warn("😭 Opps, Cannot find the config file 😭", err);
+            })
+
+            // Invoked each time before parsing the Markdown file.
+            const teamName = localStorage.getItem('TEAM_NAME') ? localStorage.getItem('TEAM_NAME') : '<TEAM_NAME>';
+            const clusterDomain = localStorage.getItem('CLUSTER_DOMAIN') ? localStorage.getItem('CLUSTER_DOMAIN') : '<CLUSTER_DOMAIN>';
+            const gitServer = localStorage.getItem('GIT_SERVER') ? localStorage.getItem('GIT_SERVER') : '<GIT_SERVER>';
+            return content.replaceAll('<TEAM_NAME>', teamName)
+                    .replaceAll('<CLUSTER_DOMAIN>', clusterDomain)
+                    .replaceAll('<GIT_SERVER>', gitServer);
+          });
+
+          const footer = `<hr/>
+            <footer>
+            <span><a href="https://www.redhat.com/en/services/consulting/open-innovation-labs">🥼🧪Red Hat Open Innovation Labs</a> </span>
+            <span style="float:right;><a href="https://www.redhat.com/en/services/training/do500-devops-culture-and-practice-enablement">🧑‍🏫 Platform as Product Lab</a></span>
+            </footer>
+            `;
+          
+          hook.afterEach(function(html) {
+            return html + footer;
+          });
+        }
+      ],
+      vueComponents: { }
+    }    
+  </script>
+
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>  
+  <script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-yaml.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-groovy.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-go.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-prism@latest/dist/docsify-prism.min.js"></script>
+  <style>
+    input[type=text] {
+      padding: 8px 12px;
+      /* display: inline-block; */
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    input[type=text]:focus {
+      outline: none !important;
+      border: 2px solid #F5606D;
+    }
+    .team-name-form {
+      margin-left: 0%;
+      background-color: #f3f3f3;
+      padding-left: 20%;
+      padding-right: 20%;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .team-inputs {
+      flex: 1;
+    }
+    .team-inputs:first-child {
+      /* margin-right: 30%; */
+    }
+    .team-inputs:input,label {
+      font-size: 12px;
+      display: block;
+    }
+    .storage-btns {
+      font-size: 12px;
+      margin: 10px;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #FAB6B6;
+      color: black;
+      border: 2px solid #FAB6B6; 
+      width: 130px; 
+      text-align: center;
+    }
+    p.tip {
+      border-left-color: #4D4D4D;
+    }
+    p.tip:before {
+      content: "!";
+      background-color: #4D4D4D;
+    }
+    .sidebar {
+       background-color: #f3f3f3;
+    }
+    :root {
+      --base-font-size: 14px;
+      --base-font-family: "RedHatText",Overpass,"Open Sans",Helvetica,Arial,sans-serif;
+      --theme-color: #CC0000;
+      --content-max-width: 75em;
+      --sidebar-width: 22rem;
+      --sidebar-nav-pagelink-background-image             : ;
+      --sidebar-nav-pagelink-background-image--active     : ;
+      --sidebar-nav-pagelink-background-image--collapse   : ;
+      --sidebar-nav-pagelink-background-image--loaded     : ;
+    }
+  </style>
+</body>
+</html>

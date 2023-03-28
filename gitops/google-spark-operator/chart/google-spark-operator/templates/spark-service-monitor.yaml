@@ -1,0 +1,14 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "google-spark-operator.fullname" . }}
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: spark
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.metrics.interval | quote }}

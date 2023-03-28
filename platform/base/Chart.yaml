@@ -1,0 +1,17 @@
+apiVersion: v2
+name: rainforest-base
+description: Rainforest Base Infra
+type: application
+version: 0.0.3
+appVersion: 0.0.3
+maintainers:
+  - name: eformat
+dependencies:
+  - name: gitops-operator
+    version: "0.6.1"
+    repository: https://redhat-cop.github.io/helm-charts
+    condition: gitops-operator.enabled
+  - name: vault
+    version: "0.23.0"
+    repository: https://helm.releases.hashicorp.com
+    condition: vault.enabled

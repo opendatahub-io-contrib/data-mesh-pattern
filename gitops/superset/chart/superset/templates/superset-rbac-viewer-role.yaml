@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: superset-rbac-viewer
+  labels:
+    {{- include "superset.labels" . | nindent 4 }}
+rules:
+  - verbs:
+      - get
+      - list
+    apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings

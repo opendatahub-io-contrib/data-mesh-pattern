@@ -1,0 +1,28 @@
+{{- $name := include "spark-operator-cluster.name" . -}}
+{{- $labels := include "spark-operator-cluster.labels" . }}
+{{- $opFullName := include "spark-operator-sa.fullname" . -}}
+{{- range $key, $value := .Values.teams }}
+{{- if eq ($value.enabled | toString) "true" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $name }}-{{ $key }}
+  labels:
+    {{- $labels | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $opFullName | quote }}
+    namespace: {{ $value.namespace | quote }}
+  - kind: ServiceAccount
+    name: jupyterhub-hub
+    namespace: {{ $value.namespace | quote }}
+  - kind: Group
+    name: {{ $value.group | quote }}
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: {{ $opFullName | quote }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

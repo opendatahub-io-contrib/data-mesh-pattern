@@ -1,0 +1,11 @@
+--- cos.py.orig	2022-07-25 14:54:32.000000000 +1000
++++ cos.py	2022-07-25 14:55:07.000000000 +1000
+@@ -94,7 +94,7 @@
+         self.secure = self.endpoint.scheme == "https"
+ 
+         # get minio client
+-        self.client = minio.Minio(self.endpoint.netloc, secure=self.secure, credentials=cred_provider)
++        self.client = minio.Minio(self.endpoint.netloc, secure=self.secure, credentials=cred_provider, region='us-east-1')
+ 
+         # Make a bucket with the make_bucket API call.
+         try:

@@ -1,0 +1,11 @@
+resources:
+- minio-ingress.yaml
+- minio-configmap.yaml
+- minio-pvc.yaml
+- minio-dc.yaml
+- minio-service.yaml
+- minio-job.yaml
+
+commonLabels:
+  opendatahub.io/component: "false"
+  component.opendatahub.io/name: "minio"

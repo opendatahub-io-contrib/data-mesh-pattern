@@ -1,0 +1,257 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-redis-configuration
+  labels:
+    {{- include "airflowredis.labels" . | nindent 4 }}
+data:
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  replica.conf: |-
+    dir /data
+    slave-read-only yes
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-redis-health
+  labels:
+    {{- include "airflowredis.labels" . | nindent 4 }}
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$response" != "PONG" ] && [ "$response" != "LOADING Redis is loading the dataset in memory" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$response" != "PONG" ] && [ "$response" != "LOADING Redis is loading the dataset in memory" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-redis-scripts
+  labels:
+    {{- include "airflowredis.labels" . | nindent 4 }}
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ ! -f /opt/bitnami/redis/etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ ! -f /opt/bitnami/redis/etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "airflowweb.fullname" . }}
+  labels:
+    {{- include "airflowweb.labels" . | nindent 4 }}
+data:
+  webserver_config.py: |
+    import os
+    import logging
+    from flask import redirect, session
+    from flask_appbuilder import expose
+    from flask_appbuilder.security.manager import AUTH_OID, AUTH_REMOTE_USER, AUTH_DB, AUTH_LDAP, AUTH_OAUTH
+    from flask_login import login_user
+    from airflow.www.security import AirflowSecurityManager
+    from urllib.parse import quote
+    from flask import request, redirect
+
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    log = logging.getLogger(__name__)
+
+    logging.basicConfig( level=logging.DEBUG)
+
+    SYSTEM_CERT_BUNDLE = '/etc/ssl/certs/ca-bundle.crt'
+    CLUSTER_CERT_BUNDLE = '/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+    COMBINED_CERT_BUNDLE = '/tmp/airflow-combined-cert-bundle.crt'
+
+    with open(COMBINED_CERT_BUNDLE, 'a+') as combined:
+        with open(SYSTEM_CERT_BUNDLE) as sys_bundle:
+            combined.write(sys_bundle.read())
+
+        with open(CLUSTER_CERT_BUNDLE) as clus_bundle:
+            combined.write(clus_bundle.read())
+
+    os.environ['CURL_CA_BUNDLE'] = COMBINED_CERT_BUNDLE
+
+    # Flask-WTF flag for CSRF
+    WTF_CSRF_ENABLED = True
+
+    # CUSTOMIZATION
+    APP_THEME = "simplex.css"
+    AUTH_TYPE = AUTH_OAUTH
+    AUTH_USER_REGISTRATION = True  # allow users who are not already in the FAB DB
+    AUTH_USER_REGISTRATION_ROLE = "Public" # this role will be given in addition to any AUTH_ROLES_MAPPING
+    AUTH_ROLES_SYNC_AT_LOGIN = True
+    PERMANENT_SESSION_LIFETIME = 1800
+
+    API_BASE_URL = os.getenv('OAUTH_API_BASE_URL')
+    NAMESPACE = os.getenv('AIRFLOW_NAMESPACE')
+    OAUTH_TOKEN_URL = os.getenv('OAUTH_TOKEN_URL')
+    OAUTH_AUTHORIZE_URL = os.getenv('OAUTH_AUTHORIZE_URL')
+    LOGOUT_REDIRECT_URL= os.getenv('LOGOUT_REDIRECT_URL')
+    MY_PROVIDER = 'keycloak'
+    CLIENT_ID = os.getenv('CLIENT_ID') or 'aflow'
+    CLIENT_SECRET = os.getenv('CLIENT_SECRET') 
+
+    AUTH_ROLES_MAPPING = {
+    "Admin": ["Admin"],
+    "Op": ["Op"],
+    "User": ["User"],
+    "Viewer": ["Viewer"],
+    "Public": ["Public"],
+    }
+
+    # Keycloak config
+    OAUTH_PROVIDERS = [{
+        'name': 'keycloak',
+        'icon': 'fa-key',
+        'token_key': 'access_token', 
+        'remote_app': {
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+            'client_kwargs': {
+                'scope': 'email profile'
+            },
+            'api_base_url': API_BASE_URL,
+            'access_token_url': OAUTH_TOKEN_URL,
+            'authorize_url': OAUTH_AUTHORIZE_URL,
+            'logout_redirect_url': LOGOUT_REDIRECT_URL,
+            "request_token_url": None,
+        },
+    }]
+
+    class CustomSecurityManager(AirflowSecurityManager):
+
+        def oauth_user_info(self, provider, response=None):
+            print(">>> provider=%s" % provider)
+            info = self.appbuilder.sm.oauth_remotes[provider].get('openid-connect/userinfo')
+            print(info.json())
+            data = info.json()
+            roles = "Public" # default role
+            try:
+                roles = data.get('resource_access').get(CLIENT_ID).get('roles')
+                print("sso roles=%s" % roles) 
+            except:
+                print("Failed to get roles, using default")
+
+            return {
+                "username": data.get("preferred_username", ""),
+                "first_name": data.get("given_name", ""),
+                "last_name": data.get("family_name", ""),
+                "email": data.get("email", ""),
+                "role_keys": roles
+            }
+
+        def auth_user_oauth(self, info):
+            print("UserInfo: %s" % info)
+            user = super(CustomSecurityManager, self).auth_user_oauth(info)
+            if user is not None:
+                for rk in info['role_keys']:
+                    role = self.find_role(rk)
+                    if role is not None and role not in user.roles:
+                        user.roles.append(role)
+                self.update_user(user)  # update user roles
+            else:
+                user = self.add_user(info.get('username'), info.get('first_name', ''), info.get('last_name', ''),
+                                    info.get('email'), [self.find_role(role) for role in info.get('role_keys', ["Public"])])
+            return user;
+
+    SECURITY_MANAGER_CLASS = CustomSecurityManager

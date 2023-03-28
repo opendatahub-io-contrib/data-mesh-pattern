@@ -1,0 +1,18 @@
+{{- range $key, $value := .Values.operators }}
+{{ if eq ($value.enabled | toString) "true" }}
+{{- if $value.operatorgroup.create }}
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ $key | default "tl500-operator-group" | quote }}
+  namespace: {{ $value.namespace | quote }}
+spec:
+{{- if not $value.operatorgroup.global }}
+  targetNamespaces:
+  - {{ $value.namespace }}
+{{- end }}
+  upgradeStrategy: Default
+{{- end }}
+{{- end }}
+{{- end }}

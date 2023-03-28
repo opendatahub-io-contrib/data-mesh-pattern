@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jupyterhub-notebook-images-daintree-dev
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    path: gitops/jupyterhub/notebook-images/overlays/daintree-dev
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

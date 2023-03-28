@@ -1,0 +1,27 @@
+{{- if .Values.devspaces }}
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "25"
+  name: {{ .Values.devspaces.name | default "devspaces" | quote }}
+  namespace: {{ default "rainforest-workspaces" | quote }}
+spec:
+  components:
+    database:
+      externalDb: false
+    metrics:
+      enable: false
+    cheServer:
+      debug: false
+      logLevel: INFO
+      extraProperties: {{ toYaml .Values.devspaces.properties | nindent 8 | default "" }}
+  devEnvironments:
+    secondsOfRunBeforeIdling: {{ .Values.devspaces.secondsOfRunBeforeIdling | default -1 }}
+    defaultNamespace:
+      template: <username>-devspaces
+    secondsOfInactivityBeforeIdling:  {{ .Values.devspaces.secondsOfInactivityBeforeIdling | default -1 }}
+    storage:
+      pvcStrategy: per-user
+{{- end }}

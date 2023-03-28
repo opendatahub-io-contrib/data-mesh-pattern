@@ -1,0 +1,528 @@
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: jhub-daintree-dev
+  labels:
+    client: jhub-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: jhub
+    clientId: jhub
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#JHUB_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultClientScopes:
+      - "profile"
+      - "email"
+      - "roles"
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          id.token.claim: 'true'
+          user.attribute: username
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: superset
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: admin
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: mlflow-daintree-dev
+  labels:
+    client: mlflow-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: mlflow
+    clientId: mlflow
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#MLFLOW_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultClientScopes:
+      - "profile"
+      - "email"
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          user.attribute: foo
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: mlflow
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: admin
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: aflow-daintree-dev
+  labels:
+    client: aflow-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    authorizationServicesEnabled: false
+    bearerOnly: false
+    name: aflow
+    clientId: aflow
+    clientAuthenticatorType: "client-secret"
+    consentRequired: false
+    defaultClientScopes:
+      - "profile"
+      - "email"
+      - "roles"
+    enabled: true
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#AIRFLOW_CLIENTSECRET>
+    implicitFlowEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    nodeReRegistrationTimeout: -1
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          id.token.claim: 'true'
+          user.attribute: username
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: superset
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: Admin
+      composite: false
+      clientRole: true
+    - name: Public
+      composite: false
+      clientRole: true
+    - name: Viewer
+      composite: false
+      clientRole: true
+    - name: User
+      composite: false
+      clientRole: true
+    - name: Op
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: spark-history-daintree-dev
+  labels:
+    client: spark-history-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: spark-history
+    clientId: spark-history
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#SPARK_HISTORY_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultClientScopes:
+      - "profile"
+      - "email"
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          user.attribute: foo
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: spark-history
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: admin
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: superset-daintree-dev
+  labels:
+    client: superset-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: superset
+    clientId: superset
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#SUPERSET_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultClientScopes:
+      - "profile"
+      - "email"
+      - "roles"
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          id.token.claim: 'true'
+          user.attribute: username
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: superset
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: Admin
+      composite: false
+      clientRole: true
+    - name: Alpha
+      composite: false
+      clientRole: true
+    - name: Gamma
+      composite: false
+      clientRole: true
+    - name: Public
+      composite: false
+      clientRole: true
+    - name: granter
+      composite: false
+      clientRole: true
+    - name: sql_lab
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: trino-daintree-dev
+  labels:
+    client: trino-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: trino
+    clientId: trino
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#TRINO_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultClientScopes:
+      - "profile"
+      - "email"
+  roles:
+    - name: admin
+      composite: false
+      clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: grafana-daintree-dev
+  labels:
+    client: grafana-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: grafana
+    clientId: grafana
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#GRAFANA_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultRoles:
+      - "Editor"
+    defaultClientScopes:
+      - "profile"
+      - "email"
+      - "roles"
+    protocolMappers:
+      - name: username
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-property-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          user.attribute: username
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: preferred_username
+          jsonType.label: String
+      - name: 'client roles'
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-client-role-mapper
+        consentRequired: false
+        config:
+          userinfo.token.claim: 'true'
+          id.token.claim: 'true'
+          user.attribute: username
+          access.token.claim: 'true'
+          claim.name: 'resource_access.${client_id}.roles'
+          jsonType.label: String
+          multivalued: 'true'
+      - name: audience
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
+        consentRequired: false
+        config:
+          included.client.audience: grafana
+          id.token.claim: 'false'
+          access.token.claim: 'true'
+  roles:
+    - name: Admin
+      composite: false
+      clientRole: true
+    - name: Editor
+      composite: false
+      clientRole: true
+    - name: Viewer
+      composite: false
+      clientRole: true

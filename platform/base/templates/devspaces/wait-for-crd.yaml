@@ -1,0 +1,70 @@
+{{- if .Values.devspaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: chev2-crd-reader
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - 'customresourcedefinitions'
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - 'mutatingwebhookconfigurations'
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - '*'
+    resources:
+      - 'pods'
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: chev2-crd-reader-binding
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: chev2-crd-reader
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: devspaces-wait-crd
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  namespace: {{ .Release.Namespace }}
+spec:
+  containers:
+    - name: crd-check
+      image: quay.io/openshift/origin-cli:latest
+      imagePullPolicy: IfNotPresent
+      command: ['sh', '-c', 'while [ true ]; do oc get crd checlusters.org.eclipse.che devworkspaceoperatorconfigs.controller.devfile.io devworkspaceroutings.controller.devfile.io devworkspaces.workspace.devfile.io devworkspacetemplates.workspace.devfile.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc get MutatingWebhookConfiguration -l olm.webhook-description-generate-name=mchecluster.kb.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc -n openshift-operators wait pod -l app=devspaces-operator --for=condition=Ready --timeout=180s; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done;']
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 0
+  serviceAccount: default
+  serviceAccountName: default
+{{- end }}

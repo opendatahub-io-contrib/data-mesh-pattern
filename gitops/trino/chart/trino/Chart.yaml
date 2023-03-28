@@ -1,0 +1,6 @@
+apiVersion: v2
+name: trino
+description: A Helm chart for Kubernetes
+type: application
+version: 1.4.1
+appVersion: "1.4.1"

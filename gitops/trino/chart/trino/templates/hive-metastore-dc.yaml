@@ -1,0 +1,159 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "hive-metastore.fullname" . }}
+  labels:
+    {{- include "hive-metastore.labels" . | nindent 4 }}
+  annotations:
+    configmap.reloader.stakater.com/reload: "hive-config,hive-scripts"
+    secret.reloader.stakater.com/reload: "hive-s3-secret"
+spec:
+  replicas: {{ .Values.replicaCountHive }}
+  selector:
+    matchLabels:
+      {{- include "hive-metastore.selectorLabels" . | nindent 6 }}
+  serviceName: hive-metastore
+  template:
+    metadata:
+      labels:
+        {{- include "hive-metastore.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: metastore
+        command:
+          - /metastore-scripts/entrypoint.sh
+        env:       
+          - name: HIVE_LOGLEVEL
+            value: "DEBUG"
+          - name: S3_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: S3_ENDPOINT
+                name: hive-s3-secret
+          - name: S3_ENDPOINT_URL_PREFIX
+            valueFrom:
+              secretKeyRef:
+                key: S3_ENDPOINT_URL_PREFIX
+                name: hive-s3-secret
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                key: AWS_ACCESS_KEY_ID
+                name: hive-s3-secret
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AWS_SECRET_ACCESS_KEY
+                name: hive-s3-secret
+          - name: S3_BUCKET_NAME
+            valueFrom:
+              secretKeyRef:
+                key: BUCKET
+                name: hive-s3-secret
+          - name: S3_DATA_DIR
+            valueFrom:
+              secretKeyRef:
+                key: S3_DATA_DIR
+                name: hive-s3-secret
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: trino-db-secret
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: trino-db-secret
+          - name: DATABASE_HOST
+            value: "trino-db"
+          - name: DATABASE_PORT
+            value: "5432"
+          - name: DATABASE_NAME
+            value: "trino"
+          - name: DATABASE_SSLMODE
+            value: "allow"
+          - name: MY_MEM_REQUEST
+            valueFrom:
+              resourceFieldRef:
+                containerName: metastore
+                resource: requests.memory
+          - name: MY_MEM_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: metastore
+                resource: limits.memory
+        image: {{ .Values.imageHive.repository }}:{{ .Values.imageHive.tag }}
+        imagePullPolicy: {{ .Values.imageHive.pullPolicy }}
+        ports:
+          - containerPort: 9083
+            name: meta
+          - containerPort: 9000
+            name: metrics
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 9083
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 9000
+            scheme: HTTP
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          {{- toYaml .Values.resourcesHive | nindent 10 }}
+        volumeMounts:
+          - mountPath: /opt/hive-metastore-bin/conf
+            name: metastore-conf
+          - mountPath: /metastore-scripts
+            name: metastore-scripts
+          - mountPath: /metastore-config
+            name: metastore-config            
+          - mountPath: /var/lib/hive
+            name: hive-metastore-db-data
+          - mountPath: /hadoop/dfs/name
+            name: namenode-empty
+          - mountPath: /hadoop/dfs/data
+            name: datanode-empty
+          - mountPath: /opt/hadoop/logs
+            name: hadoop-logs
+          - mountPath: /hadoop-config
+            name: hadoop-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: {{ include "hive-metastore.serviceAccountName" . }}
+      serviceAccountName: {{ include "hive-metastore.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: metastore-conf
+          emptyDir: {}
+        - name: metastore-config
+          configMap:
+            name: hive-config
+        - name: metastore-scripts
+          configMap:
+            defaultMode: 0775
+            name: hive-scripts
+        - name: namenode-empty
+          emptyDir: {}
+        - name: datanode-empty
+          emptyDir: {}
+        - name: hadoop-logs
+          emptyDir: {}
+        - name: hive-metastore-db-data
+          emptyDir: {}
+        - name: hadoop-config
+          secret:
+            defaultMode: 420
+            secretName: hadoop-config

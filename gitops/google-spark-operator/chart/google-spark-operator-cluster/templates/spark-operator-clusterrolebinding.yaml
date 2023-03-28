@@ -1,0 +1,44 @@
+{{- $name := include "google-spark-operator-cluster.name" . -}}
+{{- $labels := include "google-spark-operator-cluster.labels" . }}
+{{- $opFullName := include "google-spark-operator.fullname" . -}}
+{{- range $key, $value := .Values.teams }}
+{{- if eq ($value.enabled | toString) "true" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $name }}-{{ $key }}
+  labels:
+    {{- $labels | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $opFullName | quote }}
+    namespace: {{ $value.namespace | quote }}
+  - kind: Group
+    name: {{ $value.group | quote }}
+    apiGroup: rbac.authorization.k8s.io
+  - kind: ServiceAccount
+    name: default
+    namespace: {{ $value.namespace | quote }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $opFullName | quote }}
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spark-history-{{ $name }}-{{ $key }}
+subjects:
+  - kind: ServiceAccount
+    name: spark-history-server
+    namespace: {{ $value.namespace | quote }}
+  - kind: Group
+    name: {{ $value.group | quote }}
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: {{ include "spark-history.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

@@ -1,0 +1,22 @@
+replicaCount: 1
+image:
+  repository: quay.io/eformat/spark-k8s-operator
+  pullPolicy: Always
+  tag: "1.3.5"
+sparkRuntimeImage: quay.io/eformat/spark-rad:3.3.0
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  operatorName: ""
+podAnnotations: {}
+resources:
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi

@@ -1,0 +1,9 @@
+SUBDIRS := $(wildcard */.)
+
+TOPTARGETS := build push
+
+$(TOPTARGETS): $(SUBDIRS)
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS)

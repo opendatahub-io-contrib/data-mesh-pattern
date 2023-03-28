@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "trinodb.fullname" . }}
+  labels:
+    {{- include "trinodb.labels" . | nindent 4 }}
+  annotations:
+    template.alpha.openshift.io/wait-for-ready: "true"
+spec:
+  selector:
+    matchLabels:
+      {{- include "trinodb.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "trinodb.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: postgresql
+          image: {{ .Values.imageDb.repository }}:{{ .Values.imageDb.tag }}
+          imagePullPolicy: {{ .Values.imageDb.pullPolicy }}
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - "/usr/libexec/check-container"
+          livenessProbe:
+            exec:
+              command:
+                - "/usr/libexec/check-container"
+                - "--live"
+          env:
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: trino-db-secret
+                  key: database-user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trino-db-secret
+                  key: database-password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: trino-db-secret
+                  key: database-name
+          resources:
+            {{- toYaml .Values.resourcesDb | nindent 12 }}
+          volumeMounts:
+            - name: "postgresql-data"
+              mountPath: "/var/lib/pgsql/data"
+          terminationMessagePath: "/dev/termination-log"
+          imagePullPolicy: IfNotPresent
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: {{ include "trinodb.serviceAccountName" . }}
+      serviceAccountName: {{ include "trinodb.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: "postgresql-data"
+          persistentVolumeClaim:
+            claimName: trino-db-volume

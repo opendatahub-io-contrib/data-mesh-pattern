@@ -1,0 +1,21 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: minio
+  labels:
+    app.kubernetes.io/name: minio
+  annotations:
+    openshift.io/host.generated: 'true'
+spec:
+  host: null
+  to:
+    kind: Service
+    name: minio
+    weight: 100
+  port:
+    targetPort: 33933
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  wildcardPolicy: None

@@ -1,0 +1,98 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "airflowpostgresql.fullname" . }}
+  labels:
+    {{- include "airflowpostgresql.labels" . | nindent 4 }}
+spec:
+  serviceName: airflow-postgresql-headless
+  replicas: {{ .Values.replicaCountPostgresql }}
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "airflowpostgresql.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "airflowpostgresql.selectorLabels" . | nindent 8 }}
+    spec:
+      affinity:
+        podAffinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "airflowpostgresql.selectorLabels" . | nindent 20 }}
+                namespaces:
+                  - {{ .Release.Namespace }}
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+      automountServiceAccountToken: false
+      containers:
+        - name: airflow-postgresql
+          image: {{ .Values.imagePostgresql.repository }}:{{ .Values.imagePostgresql.tag }}
+          imagePullPolicy:  {{ .Values.imagePostgresql.pullPolicy }}
+          env:
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-admin-password
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-database
+          ports:
+            - name: tcp-postgresql
+              containerPort: 5432
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.resourcesPostgresql | nindent 12 }}
+          volumeMounts:
+            - name: aflow-data
+              mountPath: /var/lib/pgsql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: aflow-data
+      spec:
+        {{- with .Values.postgresql.accessModes }}
+        accessModes:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.storage | quote }}

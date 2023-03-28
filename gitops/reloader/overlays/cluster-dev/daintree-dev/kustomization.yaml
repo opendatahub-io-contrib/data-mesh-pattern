@@ -1,0 +1,17 @@
+resources:
+- ../../base
+
+namespace: daintree-dev
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: reloader
+    spec:
+      template:
+        spec:
+          containers:
+          - name: reloader
+            image: "image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/reloader:v0.0.114"

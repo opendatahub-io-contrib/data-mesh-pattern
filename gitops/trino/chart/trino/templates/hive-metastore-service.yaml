@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "hive-metastore.labels" . | nindent 4 }}
+  name: hive-metastore
+spec:
+  ports:
+    - name: meta
+      port: 9083
+      targetPort: meta
+    - name: metrics
+      port: 8082
+  selector:
+    {{- include "hive-metastore.selectorLabels" . | nindent 4 }}
+  sessionAffinity: None

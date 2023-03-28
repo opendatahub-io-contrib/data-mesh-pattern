@@ -1,0 +1,160 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "airflowworker.fullname" . }}
+  labels:
+    {{- include "airflowworker.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "airflowworker.selectorLabels" . | nindent 6 }}
+  serviceName: airflow-worker-headless
+  replicas: {{ .Values.replicaCountWorker }}
+  updateStrategy:
+    type: "RollingUpdate"
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "airflowworker.selectorLabels" . | nindent 8 }}
+    spec:
+      priorityClassName: ""
+      affinity:
+        podAffinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "airflowworker.selectorLabels" . | nindent 20 }}
+                namespaces:
+                  - {{ .Release.Namespace }}
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+      containers:
+        - name: git-sync
+          command:
+            - /git-sync
+          env:
+            - name: GIT_SYNC_REPO
+              value: {{ .Values.gitSync.repo | quote }}
+            - name: GIT_SYNC_DEST
+              value: {{ .Values.gitSync.dest | quote }}
+            - name: GIT_SYNC_BRANCH
+              value: {{ .Values.gitSync.branch | quote }}
+            - name: GIT_SYNC_ROOT
+              value: /tmp/git
+            - name: GIT_SYNC_ONE_TIME
+              value: 'false'
+            - name: GIT_SYNC_REV
+            - name: HOME
+              value: /tmp
+            - name: GIT_SYNC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: git-auth
+                  key: username
+            - name: GIT_SYNC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: git-auth
+                  key: password                  
+          image: {{ .Values.imageGitSync.repository }}:{{ .Values.imageGitSync.tag }}
+          imagePullPolicy:  {{ .Values.imageGitSync.pullPolicy }}
+          ports:
+            - name: gitsync
+              protocol: TCP
+              containerPort: 2020
+          resources:
+            {{- toYaml .Values.resourcesGitSync | nindent 12 }}
+          terminationMessagePolicy: File
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+            - name: dags-data
+              mountPath: /tmp/git
+        - name: airflow-worker
+          image: {{ .Values.imageWorker.repository }}:{{ .Values.imageWorker.tag }}
+          imagePullPolicy:  {{ .Values.imageWorker.pullPolicy }}
+          env:
+            - name: AIRFLOW_FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: airflow-fernetKey
+            - name: AIRFLOW_LOAD_EXAMPLES
+              value: "no"
+            - name: AIRFLOW_DATABASE_NAME
+              value: "bitnami_airflow"
+            - name: AIRFLOW_DATABASE_USERNAME
+              value: "bn_airflow"
+            - name: AIRFLOW_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: AIRFLOW_DATABASE_HOST
+              value: "airflow-postgresql"
+            - name: AIRFLOW_DATABASE_PORT_NUMBER
+              value: "5432"
+            - name: REDIS_HOST
+              value: "airflow-redis-master"
+            - name: REDIS_PORT_NUMBER
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+            - name: AIRFLOW_EXECUTOR
+              value: CeleryExecutor
+            - name: AIRFLOW__KUBERNETES__NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME
+              value: "airflow-core"
+            - name: AIRFLOW_WEBSERVER_HOST
+              value: airflow-web
+            - name: AIRFLOW_WEBSERVER_PORT_NUMBER
+              value: "8080"
+            - name: AIRFLOW__WEBSERVER__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: webserver-secret-key
+            - name: AIRFLOW__CELERY__WORKER_CONCURRENCY
+              value: '4'
+            - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+              value: {{ .Values.gitSync.wait | quote }}
+          ports:
+            - name: worker
+              containerPort: 8793
+          livenessProbe:
+            tcpSocket:
+              port: worker
+            failureThreshold: 6
+            initialDelaySeconds: 180
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: worker
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: dags-data
+              mountPath: /opt/app-root/dags
+          resources:
+            {{- toYaml .Values.resourcesWorker | nindent 12 }}
+      volumes:
+        - name: dags-data
+          emptyDir: {}
+      serviceAccount: {{ include "airflow.serviceAccountName" . }}
+      serviceAccountName: {{ include "airflow.serviceAccountName" . }}

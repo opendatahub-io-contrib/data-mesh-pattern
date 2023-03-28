@@ -1,0 +1,9 @@
+FROM registry.access.redhat.com/ubi8/ubi:override-me-as-buid-arg
+
+ARG aws_java_sdk_version=1.12.246
+ARG hadoop_version=3.3.3
+
+USER root
+
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${aws_java_sdk_version}/aws-java-sdk-bundle-${aws_java_sdk_version}.jar /root
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${hadoop_version}/hadoop-aws-${hadoop_version}.jar /root

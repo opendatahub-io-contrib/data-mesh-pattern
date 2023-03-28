@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: daintree-dev-app-of-apps
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    path: gitops/argocd/daintree-dev
+    directory:
+      include: "*.yaml"
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true
+    - CreateNamespace=true

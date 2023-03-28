@@ -1,0 +1,25 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    opendatahub.io/notebook-image: "true"
+  annotations:
+    opendatahub.io/notebook-image-url: "https://github.com/thoth-station/s2i-lab-elyra"
+    opendatahub.io/notebook-image-name: "Elyra TensorFlow Notebook Image"
+    opendatahub.io/notebook-image-desc: "Jupyter notebook image with Elyra-AI, TensorFlow installed"
+  name: elyra-tflow
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"TensorFlow","version":"v2.9.1"},{"name":"elyra","version":"3.9.1"}]'
+      openshift.io/imported-from: quay.io/thoth-station/s2i-lab-elyra
+    from:
+      kind: DockerImage
+      name: quay.io/eformat/elyra-tflow:0.0.2
+    name: "0.0.2"
+    importPolicy:
+      scheduled: true
+    referencePolicy:
+      type: Source

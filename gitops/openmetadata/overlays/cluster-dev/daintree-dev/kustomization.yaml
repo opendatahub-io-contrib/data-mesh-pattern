@@ -1,0 +1,8 @@
+namespace: daintree-dev
+resources:
+- ../../../base/openmetadata-dependencies
+- ../../../base/openmetadata
+- secret
+
+patchesStrategicMerge:
+- patches/deployments/openmetadata.yaml

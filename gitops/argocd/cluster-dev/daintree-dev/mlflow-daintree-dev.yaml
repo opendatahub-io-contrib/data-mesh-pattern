@@ -1,0 +1,31 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlflow-daintree-dev
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/mlflow/chart/mlflow
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            image:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/mlflow
+              tag: "2.1.1"
+            avp:
+              secretPath: "kv/data/student/rainforest-ci-cd/daintree-dev/mlflow"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

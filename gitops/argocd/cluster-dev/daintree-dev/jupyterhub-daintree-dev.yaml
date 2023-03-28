@@ -1,0 +1,56 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jupyterhub-daintree-dev
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/jupyterhub/chart/jupyterhub
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            image:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/jupyterhub
+              tag: "v0.3.2"
+            imageCuller:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/jupyterhub-idle-culler
+              tag: "v0.3.2"
+            spark_config:
+              spark_image: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/spark-rad:3.3.0
+            avp:
+              secretPath: "kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub"
+            keycloak:
+              url: <path:kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub#URL>
+              client_id: <path:kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub#CLIENT_ID>
+              client_secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub#CLIENT_SECRET>
+              realm: <path:kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub#REALM>
+            resources:
+              limits:
+                cpu: '500m'
+            resourcesDb:
+              limits:
+                cpu: '500m'
+            spark_config:
+              master_cpu_limit: '500m'
+              worker_cpu_limit: '500m'
+            idle_culler_api_token: <path:kv/data/student/rainforest-ci-cd/daintree-dev/jupyterhub#IDLE_CULLER_API_TOKEN>
+            spark_notebook_image_streams:
+              - "image-registry.openshift-image-registry.svc:5000/daintree-dev/s2i-lab-elyra-spark:3.3.0-elyra-3.9.1"
+              - "image-registry.openshift-image-registry.svc:5000/daintree-dev/s2i-lab-elyra-datamesh:1.0.0"
+            flink_notebook_image_streams:
+              - "image-registry.openshift-image-registry.svc:5000/daintree-dev/s2i-lab-elyra-flink:1.15.2"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

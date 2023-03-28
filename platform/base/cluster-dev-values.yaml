@@ -1,0 +1,195 @@
+namespaces:
+  - name: openshift-cert-manager-operator
+  - name: clusterresourceoverride-operator
+  - name: gitlab
+  - name: rainforest-workspaces
+  - name: daintree-dev
+    labels:
+      clusterresourceoverrides.admission.autoscaling.openshift.io/enabled: true
+  - name: redhat-ods-operator
+
+operators:
+
+  openshift-pipelines-operator-rh:
+    enabled: true
+    namespace: openshift-operators
+    subscription:
+      channel: latest
+      approval: Automatic
+      operatorName: openshift-pipelines-operator-rh
+      sourceName: redhat-operators
+      sourceNamespace: openshift-marketplace
+    operatorgroup:
+      create: false
+
+  openshift-cert-manager-operator:
+    enabled: true
+    namespace: openshift-operators
+    subscription:
+      channel: tech-preview
+      approval: Automatic
+      operatorName: openshift-cert-manager-operator
+      sourceName: redhat-operators
+      sourceNamespace: openshift-marketplace
+    operatorgroup:
+      create: false
+
+  devspaces:
+    enabled: true
+    namespace: openshift-operators
+    subscription:
+      channel: stable
+      approval: Automatic
+      operatorName: devspaces
+      sourceName: redhat-operators
+      sourceNamespace: openshift-marketplace
+    operatorgroup:
+      create: false
+
+  rhods-operator:
+    enabled: true
+    namespace: redhat-ods-operator
+    subscription:
+      channel: stable
+      approval: Automatic
+      operatorName: rhods-operator
+      sourceName: redhat-operators
+      sourceNamespace: openshift-marketplace
+    operatorgroup:
+      create: true
+      global: true
+
+#  clusterresourceoverride:
+#    enabled: true
+#    namespace: clusterresourceoverride-operator
+#    subscription:
+#      channel: stable
+#      approval: Automatic
+#      operatorName: clusterresourceoverride
+#      sourceName: redhat-operators
+#      sourceNamespace: openshift-marketplace
+#    operatorgroup:
+#      create: true
+
+gitlab_app_name: "gitlab-ce"
+
+gitlab:
+  namespace: gitlab
+  root_password: changeme
+  imagestreams:
+    - name: "gitlab-ce"
+      tag_name: "gitlab-12.8.7"
+      stream_uri: "gitlab/gitlab-ce:12.8.7-ce.0"
+    - name: "gitlab-ce-redis"
+      tag_name: "5.0.4"
+      stream_uri: "redis:5.0.4-alpine"
+    - name: "postgresql"
+      tag_name: "latest"
+      stream_uri: "registry.redhat.io/rhscl/postgresql-96-rhel7"
+# a body of CA certificate that Gitlab should be using goes in here. Body needs to be Base64!
+#  cacert:
+  ldap:
+#    port: "389"
+#    base: "dc=CORP,dc=EXAMPLE,dc=COM"
+#    uri: "MY-LDAP.example.corp.com"
+#    user_filter: ""
+#    validate_certs: "false"
+#    bind_dn: uid=ldap-admin,cn=users,cn=accounts,dc=CORP,dc=EXAMPLE,dc=COM
+#    password: password
+    secret_name: ldap-bind-password
+
+userworkloadmonitoring: true
+
+gitops-operator:
+  enabled: true
+  namespaces: []
+  ignoreHelmHooks: false
+
+devspaces:
+  namespace: rainforest-workspaces
+  name: "devspaces"
+  secondsOfRunBeforeIdling: "-1"
+  secondsOfInactivityBeforeIdling: "-1"
+  properties:
+    CHE_LIMITS_USER_WORKSPACES_COUNT: "2"
+    CHE_WORKSPACE_DEFAULT__MEMORY__LIMIT__MB: "3072"
+
+vault:
+  enabled: true
+  global:
+    tlsDisable: false
+    openshift: true
+  injector:
+    enabled: false
+    image:
+      repository: "registry.connect.redhat.com/hashicorp/vault-k8s"
+      tag: "1.1.0-ubi"
+    agentImage:
+      repository: "registry.connect.redhat.com/hashicorp/vault"
+      tag: "1.12.1-ubi"
+  ui:
+    enabled: true
+  server:
+    image:
+      repository: "registry.connect.redhat.com/hashicorp/vault"
+      tag: "1.12.1-ubi"
+    route:
+      enabled: true
+      host:
+    extraEnvironmentVars:
+      VAULT_CACERT: "/etc/vault-tls/vault-certs/ca.crt"
+      VAULT_TLS_SERVER_NAME:
+    standalone:
+      enabled: true
+      config: |
+        ui = true
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/etc/vault-tls/vault-certs/tls.crt"
+          tls_key_file = "/etc/vault-tls/vault-certs/tls.key"
+          tls_client_ca_file = "/etc/vault-tls/vault-certs/ca.crt"
+        }
+        storage "file" {
+          path = "/vault/data"
+        }
+    auditStorage:
+      enabled: false
+      size: 5Gi
+    extraVolumes:
+      - type: "secret"
+        name: "vault-certs"
+        path: "/etc/vault-tls"
+    ha:
+      enabled: false
+      raft:
+        enabled: true
+        setNodeId: true
+        config: |
+          ui = true
+          listener "tcp" {
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            tls_cert_file = "/etc/vault-tls/vault-certs/tls.crt"
+            tls_key_file = "/etc/vault-tls/vault-certs/tls.key"
+            tls_client_ca_file = "/etc/vault-tls/vault-certs/ca.crt"
+          }
+          storage "raft" {
+            path = "/vault/data"
+            retry_join {
+              leader_api_addr = "https://vault-active.hashicorp.svc:8200"
+              leader_ca_cert_file = "/etc/vault-tls/vault-certs/ca.crt"
+            }
+          }
+          log_level = "debug"
+          service_registration "kubernetes" {}
+    service:
+      enabled: true
+    tolerations[0]:
+      operator: Exists
+      effect: NoSchedule
+
+#clusterresourceoverride:
+#  cpuRequestToLimitPercent: 5
+#  limitCPUToMemoryPercent: 200
+#  memoryRequestToLimitPercent: 50

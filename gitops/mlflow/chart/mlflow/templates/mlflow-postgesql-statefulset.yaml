@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mlflowdb.fullname" . }}
+  labels:
+    {{- include "mlflowdb.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "mlflowdb.name" . }}
+  replicas: {{ .Values.replicaCountDb }}
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "mlflowdb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mlflowdb.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: mlflow-db-postgresql
+          image: {{ .Values.imageDb.repository }}:{{ .Values.imageDb.tag }}
+          imagePullPolicy: {{ .Values.imageDb.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_admin_password
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_database
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          volumeMounts:
+            - name: mlflow-db-data
+              mountPath: /var/lib/pgsql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: mlflow-db-data
+      spec:
+        {{- with .Values.postgresql.accessModes }}
+        accessModes:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.storage | quote }}

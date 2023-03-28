@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexus
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: rainforest-ci-cd
+    server: https://kubernetes.default.svc
+  project: rainforest
+  source:
+    helm:
+      releaseName: nexus
+      values: |
+        includeRHRepositories: false
+        service:
+          name: nexus
+    path: charts/sonatype-nexus
+    repoURL: https://github.com/redhat-cop/helm-charts
+    targetRevision: master
+  syncPolicy:
+    automated: {}

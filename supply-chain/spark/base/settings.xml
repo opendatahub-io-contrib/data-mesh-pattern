@@ -1,0 +1,10 @@
+<settings>
+    <mirrors>
+        <mirror>
+            <id>internal-repository</id>
+            <name>Maven Repository Manager </name>
+            <url>https://nexus-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/repository/maven-public</url>
+            <mirrorOf>*</mirrorOf>
+        </mirror>
+    </mirrors>
+</settings>

@@ -1,0 +1,22 @@
+---
+apiVersion: aiml.pachyderm.com/v1beta1
+kind: Pachyderm
+metadata:
+  name: pachyderm
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  console:
+    disable: true
+  pachd:
+    metrics: {}
+    storage:
+      backend: MINIO
+      minio:
+        bucket: "pachyderm"
+        endpoint: "minio.rainforest-ci-cd.svc.cluster.local:9000"
+        id: <path:kv/data/student/rainforest-ci-cd/daintree-dev/s3-auth#AWS_ACCESS_KEY_ID>
+        secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/s3-auth#AWS_SECRET_ACCESS_KEY>
+        secure: "false"
+        signature: "S3v4"

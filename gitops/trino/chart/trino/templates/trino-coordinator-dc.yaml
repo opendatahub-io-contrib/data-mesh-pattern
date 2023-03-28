@@ -1,0 +1,138 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "trino.fullname" . }}
+  labels:
+    {{- include "trino.labels" . | nindent 4 }}
+  annotations:
+    configmap.reloader.stakater.com/reload: "trino-config,trino-scripts"
+    secret.reloader.stakater.com/reload: "trino-config,trino-catalog,trino-truststore,trino-keystore"
+spec:
+  selector:
+    matchLabels:
+      {{- include "trino.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "trino.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: trino-config-volume
+          secret:
+            secretName: trino-config
+            defaultMode: 420
+            items:
+              - key: config-coordinator.properties
+                path: config-coordinator.properties
+              - key: jvm-coordinator.config
+                path: jvm-coordinator.config
+              - key: log.properties
+                path: log.properties
+              - key: node.properties
+                path: node.properties
+              - key: access-control.properties
+                path: access-control.properties
+              - key: password-authenticator.properties
+                path: password-authenticator.properties
+        - name: truststore-volume
+          secret:
+            secretName: trino-truststore
+            defaultMode: 420
+            items:
+              - key: truststore.jks
+                path: truststore.jks
+        - name: keystore-volume
+          secret:
+            secretName: trino-keystore
+            defaultMode: 420
+            items:
+              - key: keystore.jks
+                path: keystore.jks
+        - name: prometheus-exporter
+          secret:
+            secretName: trino-config-monitoring
+            defaultMode: 420
+            items:
+              - key: config.yaml
+                path: config.yaml
+        - name: trino-catalogs-volume
+          secret:
+            secretName: trino-catalog
+            defaultMode: 420
+            items:
+              - key: hive.properties
+                path: hive.properties
+        - name: trino-scripts
+          configMap:
+            name: trino-scripts
+            items:
+            - key: entrypoint.sh
+              path: entrypoint.sh
+              mode: 509
+        - name: trino-config-rules-volume
+          secret:
+            secretName: trino-config-rules
+            defaultMode: 420
+            items:
+              - key: rules.json
+                path: rules.json
+      containers:
+        - resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          name: trino-coordinator
+          command:
+            - /etc/trino/scripts/entrypoint.sh
+            - /usr/lib/trino/run-trino
+            - --etc-dir=/etc/trino
+            - --config=/etc/trino/config.properties.coordinator
+          env:
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.uid
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: hive-s3-secret
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hive-s3-secret
+                  key: AWS_SECRET_ACCESS_KEY
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: trino-config-volume
+              mountPath: /etc/trino
+            - name: prometheus-exporter
+              mountPath: /etc/trino/prometheus
+            - name: trino-catalogs-volume
+              mountPath: /etc/trino/catalog
+            - name: truststore-volume
+              mountPath: /etc/trino/truststore
+            - name: keystore-volume
+              mountPath: /etc/trino/keystore
+            - name: trino-scripts
+              mountPath: /etc/trino/scripts
+            - name: trino-config-rules-volume
+              mountPath: /etc/trino/rules
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --config=/etc/trino/config-coordinator.properties
+            - --jvm-config=/etc/trino/jvm-coordinator.config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: {{ include "trino.serviceAccountName" . }}
+      serviceAccountName: {{ include "trino.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 5
