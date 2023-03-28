@@ -31,7 +31,7 @@ spec:
               repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/git-sync
               tag: v3.5.1
             gitSync:
-              repo: "https://github.com/eformat/daintree-dev-dags.git"
+              repo: "https://github.com/opendatahub-io-contrib/daintree-dev-dags.git"
               branch: "main"
               wait: "10"
             avp:

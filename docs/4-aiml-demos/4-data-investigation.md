@@ -30,7 +30,7 @@
 5. Add the trino SSL CA certificate into the **Advanced > Security > ROOT CERTIFICATE** section
 
    ```bash
-   cat /projects/rainforest/supply-chain/trino/trino-certs/ca.crt
+   cat /projects/data-mesh-pattern/supply-chain/trino/trino-certs/ca.crt
    ```
 
    ![4-superset-ca-cert](./images/4-superset-ca-cert.png)

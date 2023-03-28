@@ -26,7 +26,7 @@ We are using a GitOps pattern to manage single sign on for all of our apps. We c
    Check this file in.
 
    ```bash
-   cd /projects/rainforest
+   cd /projects/data-mesh-pattern
    git add gitops/iam/chart/iam/daintree-dev/values.yaml
    git commit -am "🐙 UPDATE - iam values file 🐙"
    git push

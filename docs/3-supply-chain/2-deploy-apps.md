@@ -6,7 +6,7 @@ With all the images built, we can now create our team applications. In the Lab w
 1. Login to the DevSpace Terminal and create our ArgoCD app of apps for **daintree-dev**
 
    ```bash
-   cd /projects/rainforest
+   cd /projects/data-mesh-pattern
    oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/daintree-dev-app-of-apps.yaml
    ```
 

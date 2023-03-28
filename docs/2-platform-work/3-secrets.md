@@ -8,7 +8,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 1. We configured ArgoCD with a service account name to use when connecting to Vault. Let's create the Service Account now.
 
    ```bash
-   oc login --server=https://api.${CLUSTER_DOMAIN##apps.}:6443 -u ${USER_NAME} -p ${USER_PASSWORD}
+   oc login --server=https://api.${CLUSTER_DOMAIN##apps.}:6443 -u admin -p ${ADMIN_PASSWORD}
    ```
    
    ```bash
@@ -66,7 +66,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 6. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
 
    ```bash
-   oc -n rainforest exec -ti platform-base-vault-0 -- vault operator init -key-threshold=1 -key-shares=1
+   oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator init -key-threshold=1 -key-shares=1
    ```
 
    You should see the following sort of debug, **copy these somewhere safe**!
@@ -89,7 +89,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 7. Unseal the vault.   
 
    ```bash
-   oc -n rainforest exec -ti platform-base-vault-0 -- vault operator unseal $UNSEAL_KEY
+   oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator unseal $UNSEAL_KEY
    ```
 
    ![secrets-vault-unseal](./images/secrets-vault-unseal.png)
@@ -184,6 +184,8 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
     export ENTITY_ID=$(vault list -format json identity/entity/id | jq -r '.[]')
     ```
 
+    Note: that for **multiple** users in our team, the **member_entity_ids** entry would contain a list of id's. We only have one for now.
+
     ```bash
     vault write identity/group name="$TEAM_GROUP" \
     policies="$TEAM_GROUP-$PROJECT_NAME" \
@@ -225,15 +227,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    vault secrets enable -path=kv/ -version=2 kv
    ```
 
-19. The rest of the steps can now be carried out by our data science user in a self-service manner. Log back in as our **USER_NAME** to provision the ArgoCD Service Account token for k8s auth in vault.
-
-   ```bash
-   vault login -method=ldap username=${USER_NAME}
-   ```
-
-   We should see our user now has the correct policies set as well.
-
-   ![secrets-vault-login-user](./images/secrets-vault-login-user.png)
+20. The rest of the steps could now be carried out by our data science sre team in a self-service manner. For now though, we bind the service account using the single admin user as we have not given our data science user permission into the ci-cd project.
 
    Bind our k8s auth to the read ACL policy we created earlier.
 
@@ -262,7 +256,17 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    kubernetes_ca_cert="$SA_CA_CRT"
    ```
 
-20. Create the team ArgoCD Vault Plugin Secret that is used to find the correct path to the k8s auth we just created. 
+21. Create the team ArgoCD Vault Plugin Secret that is used to find the correct path to the k8s auth we just created. 
+
+   Log back in as our **USER_NAME** to provision the ArgoCD Service Account token for k8s auth in vault.
+
+   ```bash
+   vault login -method=ldap username=${USER_NAME}
+   ```
+   
+   We should see our user now has the correct policies set as well.
+   
+   ![secrets-vault-login-user](./images/secrets-vault-login-user.png)
 
    ```bash
    export AVP_TYPE=vault
@@ -291,7 +295,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    EOF
    ```
 
-21. Create an example kv2 secret to test things out.
+22. Create an example kv2 secret to test things out.
 
    ```bash
    export VAULT_HELM_RELEASE=vault
@@ -304,10 +308,6 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    export APP_NAME=secret-test
    export TEAM_GROUP=student
    export PROJECT_NAME=<TEAM_NAME>-ci-cd
-   ```
-   
-   ```bash
-   vault login -method=ldap username=${USER_NAME}
    ```
    
    ```bash
@@ -334,14 +334,14 @@ We have an encrypted file with all of the vault commands pre-baked to create our
 1. Using **ansible-vault** un-encrypt the Rainforest **vault-secrets** file. The decryption key will be provided by your instructor.
 
    ```bash
-   ansible-vault decrypt /projects/rainforest/gitops/secrets/vault-rainforest
+   ansible-vault decrypt /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
    ```
 
 2. In your IDE, Globally replace these two matches across ALL files in the Rainforest code base. This will modify some ~70 files in one go.
 
    ![secrets-global-replace](./images/secrets-global-replace.png)
 
-   Use **Replace All** for the cluster domain in the code with **our actual** cluster domain.
+   Use **Replace All** for the cluster domain in the code with **our actual** cluster domain (run this echo in your shell!)
 
    ```bash
    foo.sandbox1234.opentlc.com ->  echo ${CLUSTER_DOMAIN##apps.}
@@ -350,7 +350,7 @@ We have an encrypted file with all of the vault commands pre-baked to create our
    Use **Replace All** for the Github coordinates with our Gitlab ones. 
 
    ```bash
-   github.com/opendatahub-io-contrib ->  <GIT_SERVER>/<TEAM_NAME>
+   github.com/opendatahub-io-contrib ->  <GIT_SERVER>/data-mesh-pattern
    ```
 
    💥 DO NOT CHECK IN the files just yet !! 💥
@@ -366,8 +366,8 @@ We have an encrypted file with all of the vault commands pre-baked to create our
    ```
 
    ```bash
-   cd /projects/rainforest/supply-chain/trino/trino-certs
-   keytool -import -alias ca -file /projects/rainforest/supply-chain/trino/trino-certs/ca.crt -keystore truststore.jks -storepass password -trustcacerts -noprompt
+   cd /projects/data-mesh-pattern/supply-chain/trino/trino-certs
+   keytool -import -alias ca -file /projects/data-mesh-pattern/supply-chain/trino/trino-certs/ca.crt -keystore truststore.jks -storepass password -trustcacerts -noprompt
    ```
 
    ```bash 
@@ -405,7 +405,7 @@ We have an encrypted file with all of the vault commands pre-baked to create our
 5. Create all the application secrets in vault. Run this script.
 
    ```bash
-   sh /projects/rainforest/gitops/secrets/vault-rainforest
+   sh /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
    ```
 
    You should see vault secrets being created.
@@ -417,11 +417,11 @@ We have an encrypted file with all of the vault commands pre-baked to create our
 6. Encrypt rainforest vault-secrets file and check all our changes into git.
 
    ```bash
-   ansible-vault encrypt /projects/rainforest/gitops/secrets/vault-rainforest
+   ansible-vault encrypt /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
    ```
 
    ```bash#test
-   cd /projects/rainforest
+   cd /projects/data-mesh-pattern
    git add .
    git commit -am "🐙 ADD - cluster rename and vault secrets file 🐙"
    git push -u origin --all

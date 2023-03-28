@@ -27,7 +27,7 @@ We use the ArgoCD app-of-apps pattern to deploy the set of applications that wou
 1. Login to the DevSpace Terminal and create our ArgoCD app of apps for **rainforest-ci-cd**
 
    ```bash
-   cd /projects/rainforest
+   cd /projects/data-mesh-pattern
    oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/rainforest-ci-cd-dev-app-of-apps.yaml
    ```
 

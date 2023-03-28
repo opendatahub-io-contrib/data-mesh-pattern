@@ -22,7 +22,7 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
    helm repo add redhat-cop https://redhat-cop.github.io/helm-charts
    ```
 
-4. We configure the cluster scoped ArgoCD Operator so that we may create a privileged Team based ArgoCD instance. [Read more about aligning Teams and ArgoCD here.](https://github.com/redhat-cop/helm-charts/blob/master/charts/gitops-operator/TEAM_DOCS.md)
+4. We configure the cluster scoped ArgoCD Operator so that we may create a privileged Team based ArgoCD instance. Ideally we want a less privileged instance that just controls our teams namespaces - but for now this will suffice. [Read more about aligning Teams and ArgoCD here.](https://github.com/redhat-cop/helm-charts/blob/master/charts/gitops-operator/TEAM_DOCS.md)
 
     ```bash
     run()
@@ -85,7 +85,7 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
          subPath: argocd-vault-plugin    
      initialRepositories: |
        - name: rainforest
-         url: https://${GIT_SERVER}/${TEAM_NAME}/rainforest.git
+         url: https://${GIT_SERVER}/${TEAM_NAME}/data-mesh-pattern.git
      repositoryCredentials: |
        - url: https://${GIT_SERVER}
          type: git
@@ -128,7 +128,7 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
 
    ![argocd-install](./images/argocd-install.png)
 
-7. Login to ArgoCD using the OpenShift button. Login as **USER_NAME**, be sure to use the **FreeIPA** identity provider. On the first login you will be asked to approve OAuth permissions. 
+7. Login to ArgoCD using the OpenShift button. Login as **admin**. On the first login you will be asked to approve OAuth permissions. 
 
     ```bash
     echo https://$(oc get route argocd-server --template='{{ .spec.host }}' -n ${TEAM_NAME}-ci-cd)
@@ -139,14 +139,14 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
 8. We will use ArgoCD Projects, set these up now. The **rainforest** project is for our shared middleware, whilst the **daintree** is for our per-team tools.
 
    ```bash
-   oc apply -n ${TEAM_NAME}-ci-cd -k /projects/rainforest/tenant-argocd/overlay/rainforest
+   oc apply -n ${TEAM_NAME}-ci-cd -k /projects/data-mesh-pattern/tenant-argocd/overlay/cluster-dev/rainforest
    ```
 
    You can see these in the ArgoCD UI **Settings > Projects**
 
    ![argocd-projects](./images/argocd-projects.png)
 
-9. Login to Gitlab using LDAP and create an Internal Group called **<TEAM_NAME>**.
+9. Login to Gitlab using a data science **USER_NAME** and the LDAP identity provider. Create an Internal Group called **<TEAM_NAME>**.
 
     ```bash
     echo https://$(oc get route gitlab-ce --template='{{ .spec.host }}' -n gitlab)
@@ -154,11 +154,11 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
 
     ![gitlab-group](./images/gitlab-group.png)
 
-10. Create an Internal Project called **<TEAM_NAME>**.
+10. Create an Internal Project called **data-mesh-pattern**.
 
     ![gitlab-project](./images/gitlab-project.png)
 
-11. We will use a **Personal Access Token** to check in the code. 
+11. We will use a **Personal Access Token** to check in the code as the data science user.
 
     ```bash
     export GITLAB_USER=${USER_NAME}
@@ -173,16 +173,16 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
     ```
     
     ```bash
-    cd /projects/rainforest
-    git remote set-url origin https://${GITLAB_USER}:${GITLAB_PAT}@${GIT_SERVER}/${TEAM_NAME}/rainforest.git
+    cd /projects/data-mesh-pattern
+    git remote set-url origin https://${GITLAB_USER}:${GITLAB_PAT}@${GIT_SERVER}/${TEAM_NAME}/data-mesh-pattern.git
     ```
     
 12. Push our cloned code to Gitlab.
     
     ```bash
-    cd /projects/rainforest
+    cd /projects/data-mesh-pattern
     git add .
-    git commit -am "🐙 ADD - rainforest 🐙"
+    git commit -am "🐙 ADD - data-mesh-pattern 🐙"
     git push -u origin --all
     ```
 
