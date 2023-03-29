@@ -59,17 +59,17 @@ operators:
       create: true
       global: true
 
-  clusterresourceoverride:
-    enabled: true
-    namespace: clusterresourceoverride-operator
-    subscription:
-      channel: stable
-      approval: Automatic
-      operatorName: clusterresourceoverride
-      sourceName: redhat-operators
-      sourceNamespace: openshift-marketplace
-    operatorgroup:
-      create: true
+#  clusterresourceoverride:
+#    enabled: true
+#    namespace: clusterresourceoverride-operator
+#    subscription:
+#      channel: stable
+#      approval: Automatic
+#      operatorName: clusterresourceoverride
+#      sourceName: redhat-operators
+#      sourceNamespace: openshift-marketplace
+#    operatorgroup:
+#      create: true
 
 gitlab_app_name: "gitlab-ce"
 
@@ -191,7 +191,7 @@ vault:
       operator: Exists
       effect: NoSchedule
 
-clusterresourceoverride:
-  cpuRequestToLimitPercent: 5
-  limitCPUToMemoryPercent: 200
-  memoryRequestToLimitPercent: 50
+#clusterresourceoverride:
+#  cpuRequestToLimitPercent: 5
+#  limitCPUToMemoryPercent: 100
+#  memoryRequestToLimitPercent: 50
