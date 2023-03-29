@@ -23,7 +23,7 @@ Load them into vault.
 
 rainforest-ci-cd
 ```bash
-oc -n rainforest-ci-cd apply -f gitops/argocd/rainforest-ci-cd-dev-app-of-apps.yaml
+oc -n rainforest-ci-cd apply -f gitops/argocd/cluster-dev/rainforest-ci-cd-dev-app-of-apps.yaml
 ```
 
 daintree-dev

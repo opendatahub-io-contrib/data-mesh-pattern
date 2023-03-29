@@ -194,28 +194,6 @@ spec:
     timeout: "1h0m0s"
     retries: 3
 
-  - name: seldon-logger-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "seldon-logger"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
-  - name: seldon-runner-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "seldon-runner"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
   - name: spark-base-bake
     params:
       - name: TEAM_NAME

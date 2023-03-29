@@ -28,7 +28,7 @@ We use the ArgoCD app-of-apps pattern to deploy the set of applications that wou
 
    ```bash
    cd /projects/data-mesh-pattern
-   oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/rainforest-ci-cd-dev-app-of-apps.yaml
+   oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/cluster-dev/rainforest-ci-cd-app-of-apps.yaml
    ```
 
 <p class="warn">

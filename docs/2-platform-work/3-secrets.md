@@ -270,7 +270,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 
    ```bash
    export AVP_TYPE=vault
-   export VAULT_ADDR=https://platform-base-vault.rainforest.svc:8200   # vault url
+   export VAULT_ADDR=https://platform-base-vault.data-mesh.svc:8200   # vault url
    export AVP_AUTH_TYPE=k8s                                            # kubernetes auth
    export AVP_K8S_ROLE=vault                                           # vault role/sa
    export VAULT_SKIP_VERIFY=true
@@ -350,7 +350,7 @@ We have an encrypted file with all of the vault commands pre-baked to create our
    Use **Replace All** for the Github coordinates with our Gitlab ones. 
 
    ```bash
-   github.com/opendatahub-io-contrib ->  <GIT_SERVER>/data-mesh-pattern
+   github.com/opendatahub-io-contrib ->  <GIT_SERVER>/<TEAM_NAME>
    ```
 
    💥 DO NOT CHECK IN the files just yet !! 💥

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: rainforest-ci-cd-dev-app-of-apps
+  name: rainforest-ci-cd-app-of-apps
   namespace: rainforest-ci-cd
 spec:
   destination:
@@ -9,7 +9,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: rainforest
   source:
-    path: gitops/argocd/rainforest-ci-cd
+    path: gitops/argocd/cluster-dev/rainforest-ci-cd
     directory:
       include: "*.yaml"
     repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern

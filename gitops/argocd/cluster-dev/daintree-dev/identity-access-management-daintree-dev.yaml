@@ -6,7 +6,7 @@ metadata:
   namespace: rainforest-ci-cd
 spec:
   destination:
-    namespace: rainforest-ci-cd
+    namespace: daintree-dev
     server: 'https://kubernetes.default.svc'
   project: daintree
   source:

@@ -9,7 +9,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   project: daintree
   source:
-    path: gitops/argocd/daintree-dev
+    path: gitops/argocd/cluster-dev/daintree-dev
     directory:
       include: "*.yaml"
     repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern

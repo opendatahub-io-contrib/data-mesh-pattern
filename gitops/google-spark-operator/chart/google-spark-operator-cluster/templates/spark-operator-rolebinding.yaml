@@ -5,7 +5,7 @@
 {{- if eq ($value.enabled | toString) "true" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: {{ $name }}-{{ $key }}
   labels:
@@ -26,7 +26,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: spark-history-{{ $name }}-{{ $key }}
 subjects:

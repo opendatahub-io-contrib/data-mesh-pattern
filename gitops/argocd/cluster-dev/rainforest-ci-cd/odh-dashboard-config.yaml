@@ -2,20 +2,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jupyterhub-notebook-images-daintree-dev
+  name: odh-dashboard-config
   namespace: rainforest-ci-cd
 spec:
   destination:
-    namespace: daintree-dev
+    namespace: redhat-ods-applications
     server: 'https://kubernetes.default.svc'
-  project: daintree
+  project: rainforest
   source:
-    path: gitops/jupyterhub/notebook-images/overlays/cluster-dev/daintree-dev
     repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/rhods-config/overlays/cluster-dev
     targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-kustomize
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-    - Validate=true
+      - Validate=true
+      - ServerSideApply=true
