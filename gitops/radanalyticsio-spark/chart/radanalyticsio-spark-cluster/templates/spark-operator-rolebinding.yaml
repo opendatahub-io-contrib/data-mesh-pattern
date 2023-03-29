@@ -14,9 +14,6 @@ subjects:
   - kind: ServiceAccount
     name: {{ $opFullName | quote }}
     namespace: {{ $value.namespace | quote }}
-  - kind: Group
-    name: {{ $value.group | quote }}
-    apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
   name: {{ $opFullName | quote }}
