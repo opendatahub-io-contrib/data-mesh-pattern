@@ -100,6 +100,8 @@ gitlab:
 
 userworkloadmonitoring: true
 
+kubeletconfig: true
+
 gitops-operator:
   enabled: true
   namespaces: []
