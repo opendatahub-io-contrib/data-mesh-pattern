@@ -8,12 +8,12 @@ spec:
   notebookSizes:
     - name: Default
       resources:
-        requests:
-          memory: 1Gi
-          cpu: "1"
         limits:
           memory: 2Gi
           cpu: "2"
+        requests:
+          memory: 1Gi
+          cpu: "250m"
     - name: Small
       resources:
         limits:
