@@ -1,4 +1,3 @@
-{{- if .Values.kubeletconfig }}
 ---
 apiVersion: machineconfiguration.openshift.io/v1
 kind: KubeletConfig
@@ -18,4 +17,3 @@ metadata:
   labels:
     custom-kubelet: large-pods
   name: master
-{{- end }}

@@ -32,3 +32,8 @@ helm upgrade --install platform-base . \
   --debug \
   -f cluster-dev-values.yaml
 ```
+
+(Optional) Apply Large Pods kubeletconfig - will reboot the cluster
+```bash
+oc apply -f kubelet-config.yaml
+```

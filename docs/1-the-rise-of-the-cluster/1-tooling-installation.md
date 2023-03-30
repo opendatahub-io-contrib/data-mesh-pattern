@@ -243,6 +243,7 @@ To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM O
 
 8. Create the operator subscription.
 
+   OpenShift v4.11
    ```bash
    cat <<EOF | oc apply -f-
    apiVersion: operators.coreos.com/v1alpha1
@@ -256,6 +257,25 @@ To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM O
      channel: stable-4.11
      installPlanApproval: Automatic
      name: odf-lvm-operator
+     source: redhat-operators
+     sourceNamespace: openshift-marketplace
+   EOF
+   ```
+
+   OpenShift v4.12
+   ```bash
+   cat <<EOF | oc apply -f-
+   apiVersion: operators.coreos.com/v1alpha1
+   kind: Subscription
+   metadata:
+     labels:
+       operators.coreos.com/odf-lvm-operator.openshift-storage: ''
+     name: lvms-operator
+     namespace: openshift-storage
+   spec:
+     channel: stable-4.12
+     installPlanApproval: Automatic
+     name: lvms-operator
      source: redhat-operators
      sourceNamespace: openshift-marketplace
    EOF
@@ -287,8 +307,14 @@ To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM O
 
 11. Make the LVM storage the default storage class.
 
+   OpenShift v4.11
    ```bash
    oc annotate sc/odf-lvm-vgsno storageclass.kubernetes.io/is-default-class=true
+   ```
+
+   OpenShift v4.12
+   ```bash
+   oc annotate sc/lvms-vgsno storageclass.kubernetes.io/is-default-class=true
    ```
    
    Remove old defaults (the default SC varies depending on OpenShift Cluster version)
@@ -481,7 +507,8 @@ The Rainforest base tooling and operators are configured using a helm chart. Thi
      --namespace data-mesh \
      --create-namespace \
      --timeout=15m \
-     --debug
+     --debug \
+     -f cluster-dev-values.yaml
    ```
 
    It will take a little time to download, install and configure all the bits. Check the Status of the DevSpaces pods in the **rainforest-workspaces** project as these take the longest time to provision. 
@@ -490,7 +517,13 @@ The Rainforest base tooling and operators are configured using a helm chart. Thi
 
    ![devspaces-pods](./images/devspaces-pods.png)
 
-4. We need to add specific RBAC for our data science user group. We will give them namespace edit access on the `daintree-dev` project where their data science tools will live.
+4. (Optional) If you think you will need more than the 250 pods per node, apply the large pods `kubeletconfig` - this will reboot the SNO cluster.
+
+  ```bash
+   oc apply -f platform/kubelet-config.yaml
+   ```
+
+5. We need to add specific RBAC for our data science user group. We will give them namespace edit access on the `daintree-dev` project where their data science tools will live.
 
    ```bash
    oc adm policy add-role-to-group edit student -n daintree-dev 
