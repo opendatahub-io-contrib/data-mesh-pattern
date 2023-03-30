@@ -1,0 +1,153 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mlflow.fullname" . }}
+  labels:
+    {{- include "mlflow.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "mlflow.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mlflow.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mlflow.serviceAccountName" . }}
+      initContainers:
+        - name: wait
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          command: ['sh', '-c', "until getent hosts mlflow-db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mlflow db service; sleep 2; done"]
+      volumes:
+        - name: cert
+          secret:
+            secretName: oauth-custom-cert  
+      containers:
+        - name: oauth-proxy
+          image: {{ .Values.imageProxy.repository }}:{{ .Values.imageProxy.tag }}
+          imagePullPolicy: {{ .Values.imageProxy.imagePullPolicy }}
+          args:
+            - "--provider=$(PROVIDER)"
+            - '--https-address='
+            - '--http-address=:5000'
+            - "--client-id=$(CLIENT_ID)"
+            - "--client-secret=$(CLIENT_SECRET)"
+            - '--upstream=http://localhost:5500'
+            - '--email-domain=*'
+            - "--cookie-secret=$(COOKIE_SECRET)"
+            - '--cookie-expire={{ .Values.proxy.cookie_expire | default "168h" }}'
+            - '--cookie-refresh={{ .Values.proxy.cookie_refresh | default "1h" }}'
+            - '--cookie-secure={{ .Values.proxy.cookie_secure | default "true" }}'
+            - "--oidc-issuer-url=$(OIDC_ISSUER_URL)"
+            - "--allowed-role=$(ALLOWED_ROLE)"
+            - --reverse-proxy=true
+            - --skip-provider-button=true
+            - --ssl-insecure-skip-verify=true
+            - --ssl-upstream-insecure-skip-verify=true
+            - --insecure-oidc-allow-unverified-email
+          env:
+            - name: PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: provider
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: client_id
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: client_secret
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: client_secret
+            - name: OIDC_ISSUER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: oidc_issuer_url
+            - name: ALLOWED_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: allowed_role
+          ports:
+            - name: public
+              containerPort: 5000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resourcesProxy | nindent 12 }}
+        - name: mlflow-deployment
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - mlflow
+            - server
+            - --host=0.0.0.0
+            - --port=5500
+            - --backend-store-uri=postgresql://postgres:$(POSTGRESQL_ADMIN_PASSWORD)@mlflow-db:5432/$(POSTGRESQL_DATABASE)
+            - --artifacts-destination=$(ARTIFACTS_DESTINATION)
+            - --serve-artifacts
+            - --workers=2
+          env:
+            - name: ARTIFACTS_DESTINATION
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: artifacts_destination
+            - name: MLFLOW_S3_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: endpoint_url
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: aws_secret_access_key
+            - name: AWS_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: aws_bucket_name
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            - name: MLFLOW_S3_IGNORE_TLS
+              value: {{ .Values.s3.ignore_tls | quote }}
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_admin_password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_database
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow
+                  key: postgresql_user
+          ports:
+            - name: http
+              containerPort: 5500
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "superset.fullname" . }}
+  labels:
+    {{- include "superset.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "superset.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "superset.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+      - name: superset-init
+        env:
+        - name: SUPERSET_CONFIG_PATH
+          value: /etc/superset/superset_config.py
+        - name: POSTGRESQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: supersetdb
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: supersetdb
+        - name: POSTGRESQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: supersetdb
+        envFrom:
+        - secretRef:
+            name: superset
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ['sh', '-c', "sleep 30; superset-init --username $SUPERSET_ADMIN_USER --firstname $SUPERSET_ADMIN_FNAME --lastname $SUPERSET_ADMIN_LNAME --email $SUPERSET_ADMIN_EMAIL --password $SUPERSET_ADMIN_PASSWORD"]
+        volumeMounts:
+        - mountPath: /etc/superset/superset_config.py
+          name: superset-config
+          subPath: superset_config.py
+        resources:
+          {{- toYaml .Values.resourcesInit | nindent 10 }}
+      containers:
+      - name: superset
+        env:
+        - name: SUPERSET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: SUPERSET_SECRET_KEY
+              name: superset
+        - name: POSTGRESQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: supersetdb
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: supersetdb
+        - name: POSTGRESQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: supersetdb
+        - name: SUPERSET_CONFIG_PATH
+          value: /etc/superset/superset_config.py
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8088
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/superset/superset_config.py
+          name: superset-config
+          subPath: superset_config.py
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: {{ include "superset.serviceAccountName" . }}
+      serviceAccountName: {{ include "superset.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: superset-config
+          configMap:
+            name: {{ include "superset.fullname" . }}
+            defaultMode: 420

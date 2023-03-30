@@ -1,0 +1,18 @@
+---
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "trino.labels" . | nindent 4 }}
+  name: trino-config
+apiVersion: v1
+data:
+  hive_metastore_cpu_limit: "1"
+  hive_metastore_cpu_request: 300m
+  hive_metastore_memory_limit: 1Gi
+  hive_metastore_memory_request: 1Gi
+  trino_cpu_limit: "1"
+  trino_cpu_request: 300m
+  trino_db_secret: trino-db-secret
+  trino_environment: trino
+  trino_memory_limit: 4Gi
+  trino_memory_request: 4Gi

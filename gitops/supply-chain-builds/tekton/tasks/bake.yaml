@@ -1,0 +1,20 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: bake
+spec:
+  params:
+    - name: APP_NAME
+      description: Name of the application
+      type: string
+    - name: TEAM_NAME
+      description: Name of the team that doing this exercise :)
+      type: string
+      default: ""
+  steps:
+    - name: openshift-build
+      image: quay.io/openshift/origin-cli:4.11
+      script: |
+        #!/bin/sh
+        oc -n $(params.TEAM_NAME)-ci-cd start-build $(params.APP_NAME) --follow --wait

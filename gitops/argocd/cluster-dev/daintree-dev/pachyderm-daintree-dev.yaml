@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pachyderm
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    path: gitops/pachyderm/overlays/cluster-dev/daintree-dev
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-kustomize
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

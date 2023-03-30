@@ -1,0 +1,184 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "airflowweb.fullname" . }}
+  labels:
+    {{- include "airflowweb.labels" . | nindent 4 }}
+  annotations:
+    configmap.reloader.stakater.com/reload: "airflow"
+spec:
+  selector:
+    matchLabels:
+      {{- include "airflowweb.selectorLabels" . | nindent 6 }}
+  replicas: {{ .Values.replicaCountWeb }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "airflowweb.selectorLabels" . | nindent 8 }}
+    spec:
+      priorityClassName: ""
+      affinity:
+        podAffinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "airflowweb.selectorLabels" . | nindent 20 }}
+                namespaces:
+                  - {{ .Release.Namespace }}
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+      containers:
+        - name: airflow-web
+          image: {{ .Values.imageWeb.repository }}:{{ .Values.imageWeb.tag }}
+          imagePullPolicy:  {{ .Values.imageWeb.pullPolicy }}
+          env:
+            - name: AIRFLOW_FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: airflow-fernetKey
+            - name: AIRFLOW_LOAD_EXAMPLES
+              value: "no"
+            - name: AIRFLOW_DATABASE_NAME
+              value: "bitnami_airflow"
+            - name: AIRFLOW_DATABASE_USERNAME
+              value: "bn_airflow"
+            - name: AIRFLOW_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: AIRFLOW_DATABASE_HOST
+              value: "airflow-postgresql"
+            - name: AIRFLOW_DATABASE_PORT_NUMBER
+              value: "5432"
+            - name: REDIS_HOST
+              value: "airflow-redis-master"
+            - name: REDIS_PORT_NUMBER
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+            - name: AIRFLOW_EXECUTOR
+              value: CeleryExecutor
+            - name: AIRFLOW__KUBERNETES__NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME
+              value: "airflow-core"
+            - name: AIRFLOW_WEBSERVER_HOST
+              value: "0.0.0.0"
+            - name: AIRFLOW_WEBSERVER_PORT_NUMBER
+              value: "8080"
+            - name: AIRFLOW__WEBSERVER__RBAC
+              value: "False"
+            - name: AIRFLOW__WEBSERVER__AUTHENTICATE
+              value: "False"
+            - name: AIRFLOW_USERNAME
+              value: user
+            - name: AIRFLOW_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: airflow-password
+            - name: AIRFLOW_BASE_URL
+              value: http://127.0.0.1:8080
+            - name: AIRFLOW_LDAP_ENABLE
+              value: "no"
+            - name: AIRFLOW__WEBSERVER__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: webserver-secret-key
+            - name: AUTH_ROLE_PUBLIC
+              value: "Public"
+            - name: AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX
+              value: "True"
+            - name: REQUESTS_CA_BUNDLE
+              value: "" 
+            - name: CURL_CA_BUNDLE
+              value: "" 
+            - name: AIRFLOW_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: SA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-proxy
+                  key: token
+            - name: AIRFLOW__CORE__SENSITIVE_VAR_CONN_NAMES
+              value: AWS_SECRET_ACCESS_KEY,AWS_ACCESS_KEY_ID
+            - name: OAUTH_API_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-api-base-url
+            - name: OAUTH_TOKEN_URL
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-token-url
+            - name: OAUTH_AUTHORIZE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-authorize-url
+            - name: LOGOUT_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-logout-redirect-url
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-client-id
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: airflow
+                  key: oauth-client-secret
+            - name: DEBUG
+              value: "True"
+            - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+              value: {{ .Values.gitSync.wait | quote }}
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 6
+            initialDelaySeconds: 180
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resourcesWeb | nindent 12 }}
+          volumeMounts:
+            - mountPath: /opt/app-root/webserver_config.py
+              name: airflowweb-config
+              subPath: webserver_config.py
+      serviceAccount: airflow-proxy
+      serviceAccountName: airflow-proxy
+      volumes:
+        - name: airflowweb-config
+          configMap:
+            name: {{ include "airflowweb.fullname" . }}
+            defaultMode: 420

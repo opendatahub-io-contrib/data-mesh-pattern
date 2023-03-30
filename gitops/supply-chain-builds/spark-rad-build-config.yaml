@@ -1,0 +1,66 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: spark-rad
+  name: spark-rad
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: spark-rad
+  name: spark-rad
+spec:
+  completionDeadlineSeconds: 3600
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "2Gi"
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: spark-rad:3.3.0
+  postCommit: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    type: Git
+    contextDir: supply-chain/spark
+    sourceSecret:
+      name: git-auth
+  strategy:
+    dockerStrategy:
+      dockerfilePath: radanalyticsio/Dockerfile
+      from:
+        kind: ImageStreamTag
+        name: spark-base:latest
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: 7uqdp8XlkT-IteMISzpt
+    type: GitHub
+  - generic:
+      secret: gR5-Dtb1Ie_6ILQrEcWd
+    type: Generic
+  - type: ConfigChange
+  - type: ImageChange
+    imageChange:
+      from:
+        kind: ImageStreamTag
+        name: 'spark-base:latest'

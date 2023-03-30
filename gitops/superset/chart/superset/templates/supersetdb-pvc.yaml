@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: supersetdb-data
+  labels:
+    {{- include "supersetdb.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.database.accessModes }}
+  accessModes:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.database.storage | quote }}

@@ -1,0 +1,10 @@
+<settings>
+    <mirrors>
+        <mirror>
+            <id>internal-repository</id>
+            <name>GCP Artifactory Maven Repository Manager </name>
+            <url>https://your-dep-repo:443/artifactory/mavencentralrepo/</url>
+            <mirrorOf>*</mirrorOf>
+        </mirror>
+    </mirrors>
+</settings>

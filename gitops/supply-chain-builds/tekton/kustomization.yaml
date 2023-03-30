@@ -1,0 +1,4 @@
+resources:
+  - pipelines/supply-chain-builds-pipeline.yaml
+  - secrets/sa-pipeline.yaml
+  - tasks/bake.yaml

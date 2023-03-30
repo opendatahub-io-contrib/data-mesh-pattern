@@ -1,0 +1,44 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow-daintree-dev
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/airflow/chart/airflow
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            imageScheduler:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/airflow-scheduler
+              tag: 2.5.1
+            imageWeb:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/airflow-web
+              tag: 2.5.1
+            imageWorker:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/airflow-worker
+              tag: 2.5.1
+            imageGitSync:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/git-sync
+              tag: v3.5.1
+            gitSync:
+              repo: "https://github.com/opendatahub-io-contrib/daintree-dev-dags.git"
+              branch: "main"
+              wait: "10"
+            avp:
+              secretPath: "kv/data/student/rainforest-ci-cd/daintree-dev/airflow"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

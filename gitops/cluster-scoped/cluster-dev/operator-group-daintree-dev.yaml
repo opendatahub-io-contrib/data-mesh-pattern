@@ -1,0 +1,9 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: daintree-dev-og
+  namespace: daintree-dev
+spec:
+  targetNamespaces:
+    - daintree-dev

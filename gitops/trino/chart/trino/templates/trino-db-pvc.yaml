@@ -1,0 +1,15 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: trino-db-volume
+  labels:
+    {{- include "trinodb.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.database.accessModes }}
+  accessModes:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.database.storage | quote }}

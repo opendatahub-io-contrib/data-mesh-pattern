@@ -1,0 +1,244 @@
+### Adpated from Helm Chart: https://artifacthub.io/packages/helm/spot/spark-history-server
+# Source: spark-history-server/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    app.kubernetes.io/instance: spark-history-server
+---
+# Source: spark-history-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    helm.sh/chart: spark-history-server-1.5.0
+    app.kubernetes.io/instance: spark-history-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 18080
+      targetPort: historyport
+      protocol: TCP
+      name: historyport
+    - port: 8080
+      targetPort: 8080
+      name: http
+  selector:
+    app.kubernetes.io/name: spark-history-server
+    app.kubernetes.io/instance: spark-history-server
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/name: spark-history-server
+spec:
+{{- if .Values.route.host }}
+  host: {{ .Values.route.host }}
+{{- end}}
+  to:
+    kind: Service
+    name: spark-history-server
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+  wildcardPolicy: None
+---
+# Source: spark-history-server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    helm.sh/chart: spark-history-server-1.5.0
+    app.kubernetes.io/instance: spark-history-server
+  annotations:
+    secret.reloader.stakater.com/reload: "google-spark-operator"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spark-history-server
+      app.kubernetes.io/instance: spark-history-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spark-history-server
+        app.kubernetes.io/instance: spark-history-server
+    spec:
+      serviceAccountName: spark-history-server
+      containers:
+        - name: oauth-proxy
+          image: {{ .Values.imageProxy.repository }}:{{ .Values.imageProxy.tag }}
+          imagePullPolicy: {{ .Values.imageProxy.imagePullPolicy }}
+          env:
+            - name: PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: provider
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: clientId
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: clientSecret
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: cookieSecret
+            - name: OIDC_ISSUER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: oidcIssuerUrl
+            - name: ALLOWED_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: allowedRole
+          args:
+            - "--provider=$(PROVIDER)"
+            - '--https-address='
+            - '--http-address=:8080'
+            - "--client-id=$(CLIENT_ID)"
+            - "--client-secret=$(CLIENT_SECRET)"
+            - '--upstream=http://localhost:18080'
+            - '--email-domain=*'
+            - "--cookie-secret=$(COOKIE_SECRET)"
+            - '--cookie-expire={{ .Values.proxy.cookie_expire | default "168h" }}'
+            - '--cookie-refresh={{ .Values.proxy.cookie_refresh | default "1h" }}'
+            - '--cookie-secure={{ .Values.proxy.cookie_secure | default "true" }}'
+            - "--oidc-issuer-url=$(OIDC_ISSUER_URL)"
+            - "--allowed-role=$(ALLOWED_ROLE)"
+            - --reverse-proxy=true
+            - --skip-provider-button=true
+            - --ssl-insecure-skip-verify=true
+            - --ssl-upstream-insecure-skip-verify=true
+            - --insecure-oidc-allow-unverified-email
+          ports:
+            - name: public
+              containerPort: 5000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resourcesProxy | nindent 12 }}
+        - name: spark-history-server
+          image: {{ .Values.historyimage.repository }}:{{ .Values.historyimage.tag }}
+          imagePullPolicy: {{ .Values.historyimage.pullPolicy }}
+          env:
+            - name: HADOOP_CONF_DIR
+              value: /etc/hadoop
+            - name: SPARK_NO_DAEMONIZE
+              value: "true"
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: s3BucketName
+            - name: BUCKET_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: s3EndpointUrl
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: s3AwsAccessKeyId
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "google-spark-operator.serviceAccountName" . }}
+                  key: s3AwsSecretAccessKey
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            - name: ENABLE_S3_SIGV4_SYSTEM_PROPERTY
+              value: "true"
+          ports:
+            - name: historyport
+              containerPort: 18080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 250m
+          command:
+            - "/bin/sh"
+            - "-c"
+            - >
+              set -ex;
+              myuid=$(id -u);
+              mygid=$(id -g);
+              set +e;
+              uidentry=$(getent passwd $myuid);
+              set -e;
+              if [ -z "$uidentry" ] ; then
+                  if [ -w /etc/passwd ] ; then
+                echo "$myuid:x:$myuid:$mygid:${SPARK_USER_NAME:-anonymous uid}:$SPARK_HOME:/bin/false" >> /etc/passwd;
+                  else
+                echo "Container ENTRYPOINT failed to add passwd entry for anonymous UID";
+                  fi;
+              fi;
+              SPARK_CLASSPATH="$SPARK_CLASSPATH:${SPARK_HOME}/jars/*";
+              env | grep SPARK_JAVA_OPT_ | sort -t_ -k4 -n | sed 's/[^=]*=\(.*\)/\1/g' > /tmp/java_opts.txt;
+              readarray -t SPARK_EXECUTOR_JAVA_OPTS < /tmp/java_opts.txt;
+              if [ -n "$SPARK_EXTRA_CLASSPATH" ]; then
+                SPARK_CLASSPATH="$SPARK_CLASSPATH:$SPARK_EXTRA_CLASSPATH";
+              fi;
+              if ! [ -z ${PYSPARK_PYTHON+x} ]; then
+                  export PYSPARK_PYTHON;
+              fi;
+              if ! [ -z ${PYSPARK_DRIVER_PYTHON+x} ]; then
+                  export PYSPARK_DRIVER_PYTHON;
+              fi;
+              if [ -n "${HADOOP_HOME}"  ] && [ -z "${SPARK_DIST_CLASSPATH}"  ]; then
+                export SPARK_DIST_CLASSPATH="$($HADOOP_HOME/bin/hadoop classpath)";
+              fi;
+              if ! [ -z ${HADOOP_CONF_DIR+x} ]; then
+                SPARK_CLASSPATH="$HADOOP_CONF_DIR:$SPARK_CLASSPATH";
+              fi;
+              if ! [ -z ${SPARK_CONF_DIR+x} ]; then
+                SPARK_CLASSPATH="$SPARK_CONF_DIR:$SPARK_CLASSPATH";
+              elif ! [ -z ${SPARK_HOME+x} ]; then
+                SPARK_CLASSPATH="$SPARK_HOME/conf:$SPARK_CLASSPATH";
+              fi;
+              export SPARK_LOG_DIR=/opt/spark/work-dir/logs;
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.history.fs.logDirectory=s3a://$BUCKET_NAME/spark-data";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.endpoint=$BUCKET_HOST";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.access.key=$AWS_ACCESS_KEY_ID";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.secret.key=$AWS_SECRET_ACCESS_KEY";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.endpoint.region=$AWS_DEFAULT_REGION";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.path.style.access=true";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.connection.ssl.enabled=true";
+              export SPARK_HISTORY_OPTS="$SPARK_HISTORY_OPTS -Dspark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider";
+              echo $SPARK_HISTORY_OPTS;
+              /opt/spark/sbin/start-history-server.sh
+          livenessProbe:
+            httpGet:
+              path: /
+              port: historyport
+            periodSeconds: 20
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: historyport
+            periodSeconds: 60
+            timeoutSeconds: 3

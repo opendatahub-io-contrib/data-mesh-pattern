@@ -1,0 +1,12 @@
+bases:
+- ../../../base
+
+resources:
+- KeycloakRealm.yaml
+- KeycloakClient.yaml
+
+namespace: rainforest-ci-cd
+
+commonLabels:
+  opendatahub.io/component: "false"
+  component.opendatahub.io/name: "keycloak"

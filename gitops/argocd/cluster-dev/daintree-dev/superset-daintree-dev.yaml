@@ -1,0 +1,62 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: superset-daintree-dev
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: daintree-dev
+    server: 'https://kubernetes.default.svc'
+  project: daintree
+  source:
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/superset/chart/superset
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            image:
+              repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/superset
+              pullPolicy: Always
+              tag: "2.0.0-ubi"
+            resources:
+              limits:
+                cpu: 500m
+                memory: 2Gi
+              requests:
+                cpu: 250m
+                memory: 1Gi
+            resourcesInit:
+              limits:
+                cpu: 500m
+                memory: 1Gi
+              requests:
+                cpu: 500m
+                memory: 1Gi
+            resourcesDb:
+              limits:
+                cpu: 500m
+                memory: 1Gi
+              requests:
+                cpu: 250m
+                memory: 300Mi
+            auth:
+              default_role: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#DEFAULT_ROLE>"
+              base_url: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_BASE_URL>"
+              oidc_auth_url: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_AUTH_URL>"
+              client_id: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_CLIENT_ID>"
+              client_secret: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_CLIENT_SECRET>"
+              redirect_uris: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_REDIRECT_URIS>"
+              token_uri: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_TOKEN_URL>"
+              logout_redirect_url: "<path:kv/data/student/rainforest-ci-cd/daintree-dev/superset#OAUTH_LOGOUT_REDIRECT_URL>"
+            avp:
+              secretPath: "kv/data/student/rainforest-ci-cd/daintree-dev/superset"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

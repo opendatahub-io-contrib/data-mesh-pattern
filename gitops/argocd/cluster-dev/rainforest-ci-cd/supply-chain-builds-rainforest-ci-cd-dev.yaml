@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: supply-chain-builds
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: rainforest-ci-cd
+    server: 'https://kubernetes.default.svc'
+  project: rainforest
+  source:
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    path: gitops/supply-chain-builds
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

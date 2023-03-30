@@ -1,0 +1,299 @@
+{{- if .Values.gitlab -}}
+{{ $db_user := include "gitlab.postgres.user" . }}
+{{ $db_pass := include "gitlab.postgres.password" . }}
+{{ $db_admin_pass := include "gitlab.postgres.admin_password" . }}
+---
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  strategy:
+    type: Recreate
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - gitlab-ce
+      from:
+        kind: ImageStreamTag
+        name: "{{ $.Values.gitlab_app_name }}:gitlab-12.8.7"
+  replicas: 1
+  test: false
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ $.Values.gitlab_app_name }}"
+        deploymentconfig: "{{ $.Values.gitlab_app_name }}"
+    spec:
+      volumes:
+      - name: gitlab-ce-volume-1
+        persistentVolumeClaim:
+          claimName: "{{ $.Values.gitlab_app_name }}-etc"
+      - name: gitlab-ce-volume-2
+        persistentVolumeClaim:
+          claimName: "{{ $.Values.gitlab_app_name }}-data"
+{{- if .Values.gitlab.cacert }}
+      - name: gitlab-ca
+        secret:
+          defaultMode: 420
+          items:
+          - key: "ca-cert.crt"
+            path: "ca-cert.crt"
+          secretName: gitlab-ca
+{{- end }}
+      containers:
+      - name: gitlab-ce
+        image: gitlab-ce
+        ports:
+        - containerPort: 22
+          protocol: TCP
+        - containerPort: 80 
+          protocol: TCP
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          value:
+            root_pass='{{ $.Values.gitlab.root_password | default "kJ4e9qLkm4pOhQnbn7nE" }}';
+            external_url "https://{{ $.Values.gitlab_app_name }}.{{ include "app_domain" . }}";
+            nginx['listen_port']=80;
+            nginx['listen_https']=false;
+            gitlab_rails['initial_root_password']=root_pass;
+            gitlab_rails['gitlab_port']=80;
+            letsencrypt['enable'] = false;
+            postgresql['enable']=false;
+            gitlab_rails['db_host'] = '{{ $.Values.gitlab_app_name }}-postgresql';
+            gitlab_rails['db_password']='{{ $db_pass }}';
+            gitlab_rails['db_username']='{{ $db_user }}';
+            gitlab_rails['db_database']='{{ .Values.gitlab.db_name | default "gitlabhq_production" }}';
+            redis['enable'] = false; 
+            gitlab_rails['redis_host']='{{ $.Values.gitlab_app_name }}-redis';
+            unicorn['worker_processes'] = {{ .Values.gitlab.uni_workers | default 2 }}; 
+            manage_accounts['enable'] = true;
+            manage_storage_directories['manage_etc'] = false; 
+            gitlab_shell['auth_file'] = '/gitlab-data/ssh/authorized_keys';
+            git_data_dirs({ 'default' => { 'path' => '/gitlab-data/git-data' } });
+            gitlab_rails['shared_path'] = '/gitlab-data/shared'; 
+            gitlab_rails['uploads_directory'] = '/gitlab-data/uploads';
+            gitlab_ci['builds_directory'] = '/gitlab-data/builds';
+            prometheus_monitoring['enable'] = false;
+            gitlab_rails['rack_attack_git_basic_auth'] = { 'enabled' => false, };
+            gitlab_rails['ldap_enabled'] = true;
+            gitlab_rails['ldap_servers'] = { 'main' => { 'label' => '{{ .Values.gitlab.label | default "LDAP" }}', 'host' => '{{ include "gitlab.ldap.uri" . }}', 'port' => '{{ include "gitlab.ldap.port" . }}', 'uid' => 'uid', 'bind_dn' => '{{ include "gitlab.ldap.bind_dn" . }}', 'password' => '{{ include "gitlab.ldap.bind_password" . }}', 'encryption' => '{{ include "gitlab.ldap.encryption" . }}', 'verify_certificates' => {{ .Values.gitlab.ldap.validate_certs | default false }}, 'allow_username_or_email_login' => true, 'block_auto_created_users' => false, 'active_directory' => false, 'base' => '{{ include "gitlab.ldap.base" . }}', 'user_filter' => '{{ include "gitlab.ldap.user_filter" . | default "" }}', 'attributes' => { 'username' => ['uid'], 'email' => ['mail'], 'name' => 'displayName' } } };
+            gitlab_rails['gitlab_signup_enabled'] = false;
+        resources:
+          limits:
+            cpu: '1'
+            memory: 6Gi
+          requests:
+            cpu: 200m
+            memory: 1Gi
+        volumeMounts:
+        - name: gitlab-ce-volume-1
+          mountPath: "/etc/gitlab"
+        - name: gitlab-ce-volume-2
+          mountPath: "/gitlab-data"
+{{- if .Values.gitlab.cacert }}
+        - name: gitlab-ca
+          mountPath: /etc/gitlab-ssl
+{{- end }}
+        livenessProbe:
+          httpGet:
+            path: "/help"
+            port: 80 
+            scheme: HTTP
+          initialDelaySeconds: 120
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: "/help"
+            port: 80 
+            scheme: HTTP
+          initialDelaySeconds: 120
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        terminationMessagePath: "/dev/termination-log"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccount: "{{ $.Values.gitlab_app_name }}-user"
+---
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}-redis"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  strategy:
+    type: Recreate
+    recreateParams: {}
+    resources: {}
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - gitlab-ce-redis
+      from:
+        kind: ImageStreamTag
+        name: "{{ $.Values.gitlab_app_name }}-redis:5.0.4"
+  replicas: 1
+  test: false
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}-redis"
+  template:
+    metadata:
+      labels:
+        app: "{{ $.Values.gitlab_app_name }}"
+        deploymentconfig: "{{ $.Values.gitlab_app_name }}-redis"
+    spec:
+      volumes:
+      - name: gitlab-ce-volume-4
+        persistentVolumeClaim:
+          claimName: "{{ $.Values.gitlab_app_name }}-redis-data"
+      containers:
+      - name: gitlab-ce-redis
+        image: gitlab-ce-redis
+        command:
+        - "/bin/sh"
+        - "-ec"
+        args:
+        - exec redis-server
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        resources:
+          limits:
+            cpu: '500m'
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 300Mi
+        volumeMounts:
+        - name: gitlab-ce-volume-4
+          mountPath: "/data"
+        terminationMessagePath: "/dev/termination-log"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+---
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}-postgresql"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  strategy:
+    type: Recreate
+    recreateParams:
+      post:
+        failurePolicy: Abort
+        execNewPod:
+          containerName: gitlab-ce-postgresql
+          command:
+          - "/usr/bin/scl"
+          - enable
+          - rh-postgresql96
+          - export PGPASSWORD='{{ $db_admin_pass }}'; psql -h '{{ $.Values.gitlab_app_name }}-postgresql'
+            -U postgres -d {{ .Values.gitlab.db_name | default "gitlabhq_production" }} -c 'CREATE EXTENSION IF NOT EXISTS
+            pg_trgm;'
+          env:
+          - name: HOME
+            value: "/var/lib/pgsql"
+          - name: PGDATA
+            value: "/var/lib/pgsql/data/userdata"
+          - name: CONTAINER_SCRIPTS_PATH
+            value: "/usr/share/container-scripts/postgresql"
+    resources: {}
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - gitlab-ce-postgresql
+      from:
+        kind: ImageStreamTag
+        name: postgresql:latest
+        namespace: {{ .Values.gitlab.namespace }}
+  replicas: 1
+  test: false
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}-postgresql"
+  template:
+    metadata:
+      labels:
+        app: "{{ $.Values.gitlab_app_name }}"
+        deploymentconfig: "{{ $.Values.gitlab_app_name }}-postgresql"
+    spec:
+      volumes:
+      - name: gitlab-ce-volume-3
+        persistentVolumeClaim:
+          claimName: "{{ $.Values.gitlab_app_name }}-postgresql"
+      containers:
+      - name: gitlab-ce-postgresql
+        image: gitlab-ce-postgresql
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        readinessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 5
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
+              'SELECT 1'
+        livenessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 30
+          tcpSocket:
+            port: 5432
+        env:
+        - name: POSTGRESQL_USER
+          value: "{{ $db_user }}"
+        - name: POSTGRESQL_PASSWORD
+          value: "{{ $db_pass }}"
+        - name: POSTGRESQL_DATABASE
+          value: "{{ .Values.gitlab.db_name | default "gitlabhq_production" }}"
+        - name: POSTGRESQL_ADMIN_PASSWORD
+          value: "{{ $db_admin_pass }}"
+        resources:
+          limits:
+            cpu: '500m'
+            memory: 1024Mi
+          requests:
+            cpu: 300m
+            memory: 300Mi
+        volumeMounts:
+        - name: gitlab-ce-volume-3
+          mountPath: "/var/lib/pgsql/data"
+        terminationMessagePath: "/dev/termination-log"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+{{- end -}}

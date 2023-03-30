@@ -1,0 +1,73 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: rainforest
+  namespace: rainforest-ci-cd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - name: '*'
+    namespace: rainforest-ci-cd
+    server: '*'
+  - name: '*'
+    namespace: daintree-dev
+    server: '*'
+  - name: '*'
+    namespace: pachyderm
+    server: '*'
+  - name: '*'
+    namespace: redhat-ods-applications
+    server: '*'
+  sourceRepos:
+    - '*'
+status: {}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: daintree
+  namespace: rainforest-ci-cd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destinations:
+    - name: '*'
+      namespace: rainforest-ci-cd
+      server: '*'
+    - name: '*'
+      namespace: daintree-dev
+      server: '*'
+    - name: '*'
+      namespace: redhat-ods-applications
+      server: '*'
+  sourceRepos:
+    - '*'
+status: {}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: fybrik
+  namespace: rainforest-ci-cd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destinations:
+    - name: '*'
+      namespace: rainforest-ci-cd
+      server: '*'
+    - name: '*'
+      namespace: fybrik-blueprints
+      server: '*'
+    - name: '*'
+      namespace: fybrik-system
+      server: '*'
+  sourceRepos:
+    - '*'
+status: {}
+

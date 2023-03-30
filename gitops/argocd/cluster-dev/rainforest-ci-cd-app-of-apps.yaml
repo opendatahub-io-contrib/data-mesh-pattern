@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rainforest-ci-cd-app-of-apps
+  namespace: rainforest-ci-cd
+spec:
+  destination:
+    namespace: rainforest-ci-cd
+    server: 'https://kubernetes.default.svc'
+  project: rainforest
+  source:
+    path: gitops/argocd/cluster-dev/rainforest-ci-cd
+    directory:
+      include: "*.yaml"
+    repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - Validate=true

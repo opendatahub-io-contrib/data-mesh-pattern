@@ -1,0 +1,23 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    opendatahub.io/notebook-image: "true"
+  annotations:
+    opendatahub.io/notebook-image-name: "Minimal Python with Apache Spark and SciPy"
+  name: s2i-spark-scipy-notebook
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      openshift.io/imported-from: quay.io/odh-jupyterhub/s2i-spark-scipy-notebook
+      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.6.3"},{"name":"Spark","version":"v2.2.1"},{"name":"SciPy","version":"v0.19.1"}]'
+    from:
+      kind: DockerImage
+      name: quay.io/odh-jupyterhub/s2i-spark-scipy-notebook:3.6
+    name: "3.6"
+    importPolicy:
+      scheduled: true
+    referencePolicy:
+      type: Source

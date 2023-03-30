@@ -1,0 +1,16 @@
+{{- if .Values.clusterresourceoverride }}
+apiVersion: operator.autoscaling.openshift.io/v1
+kind: ClusterResourceOverride
+metadata:
+  name: cluster
+  namespace: {{ default "clusterresourceoverride-operator" | quote }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "25"
+spec:
+  podResourceOverride:
+    spec:
+      cpuRequestToLimitPercent: {{ .Values.clusterresourceoverride.cpuRequestToLimitPercent | default 25 }}
+      limitCPUToMemoryPercent: {{ .Values.clusterresourceoverride.limitCPUToMemoryPercent | default 200 }}
+      memoryRequestToLimitPercent: {{ .Values.clusterresourceoverride.memoryRequestToLimitPercent | default 50 }}
+{{- end }}

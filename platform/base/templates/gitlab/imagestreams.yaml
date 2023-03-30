@@ -1,0 +1,18 @@
+{{- if .Values.gitlab -}}
+{{- range $is := .Values.gitlab.imagestreams }}
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: "{{ $is.name }}"
+  namespace: {{ $.Values.gitlab.namespace }}
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  tags:
+  - name: {{ $is.tag_name }}
+    from:
+      kind: DockerImage
+      name: {{ $is.stream_uri }}
+{{- end }}
+{{- end }}

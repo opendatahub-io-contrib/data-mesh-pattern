@@ -1,0 +1,20 @@
+ARG SPARK_IMAGE=spark-base:latest
+
+FROM quay.io/eformat/spark-history-dep:3.3.0 as base
+# base spark dep in image
+
+FROM ${SPARK_IMAGE}
+
+ARG aws_java_sdk_version=1.12.246
+ARG hadoop_aws_version=3.3.3
+
+ADD https://nexus-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/repository/maven-public/com/amazonaws/aws-java-sdk-bundle/${aws_java_sdk_version}/aws-java-sdk-bundle-${aws_java_sdk_version}.jar /opt/spark/jars/
+ADD https://nexus-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/repository/maven-public/org/apache/hadoop/hadoop-aws/${hadoop_aws_version}/hadoop-aws-${hadoop_aws_version}.jar /opt/spark/jars/
+
+RUN yum --setopt=tsflags=nodocs install -y java-11-openjdk \
+    && rpm -q java-11-openjdk
+
+USER root
+RUN chmod 0644 /opt/spark/jars/hadoop-aws-*.jar && chmod 0644 /opt/spark/jars/aws-java-sdk-*.jar && chown 1000:1000 /opt/spark/jars/hadoop-aws-*.jar && chown 1000:1000 /opt/spark/jars/aws-java-sdk-*.jar
+
+USER 185

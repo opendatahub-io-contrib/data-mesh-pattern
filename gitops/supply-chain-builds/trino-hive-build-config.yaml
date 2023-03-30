@@ -1,0 +1,58 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: ubi-hive
+  name: ubi-hive
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hive
+  name: hive
+spec:
+  completionDeadlineSeconds: 3600
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "2Gi"
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ubi-hive:3.1.3
+  postCommit: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    type: Git
+    contextDir: supply-chain/trino
+    sourceSecret:
+      name: git-auth
+  strategy:
+    dockerStrategy:
+      dockerfilePath: hive/Dockerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: 7uqdp8XlkT-IteMISzpt
+    type: GitHub
+  - generic:
+      secret: gR5-Dtb1Ie_6ILQrEcWd
+    type: Generic
+  - type: ConfigChange

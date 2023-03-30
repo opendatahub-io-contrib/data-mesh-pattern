@@ -1,0 +1,25 @@
+{{- if not .Values.ignoreHelmHooks }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: config-imageregistry
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccount: default
+      serviceAccountName: default
+      containers:
+      - name: job
+        image: "quay.io/openshift/origin-cli:latest"
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/bash
+          - -c
+          - | # expose the registry securely
+            oc patch config.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
+{{- end }}

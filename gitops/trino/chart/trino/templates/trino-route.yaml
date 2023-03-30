@@ -1,0 +1,17 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: trino
+  labels:
+    {{- include "trino.labels" . | nindent 4 }}
+spec:
+  to:
+    kind: Service
+    name: trino-service
+  port:
+    targetPort: 8443
+  wildcardPolicy: None
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect

@@ -1,0 +1,21 @@
+{{- if .Values.gitlab }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  host: {{ $.Values.gitlab_app_name }}.{{ include "app_domain" . }}
+  to:
+    kind: Service
+    name: "{{ $.Values.gitlab_app_name }}"
+    weight: 100
+  port:
+    targetPort: 80-http
+  tls:
+    termination: edge 
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+{{- end }}

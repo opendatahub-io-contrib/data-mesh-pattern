@@ -1,0 +1,44 @@
+replicaCount: 1
+image:
+  repository: quay.io/eformat/spark-google-operator
+  pullPolicy: Always
+  tag: "3.3.0"
+historyimage:
+  repository: quay.io/eformat/spark-history
+  pullPolicy: Always
+  tag: "3.3.0"
+imageProxy:
+  repository: quay.io/oauth2-proxy/oauth2-proxy
+  pullPolicy: Always
+  tag: "v7.3.0"
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  operatorName: ""
+podAnnotations: {}
+metrics:
+  interval: "5s"
+avp:
+  secretPath: ""
+proxy:
+  cookie_expire:
+  cookie_refresh:
+  cookie_secure:
+s3:
+  endpoint_url: ""
+  aws_access_key_id: ""
+  aws_secret_access_key: ""
+  aws_bucket_name: ""
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+route:
+  host: ""

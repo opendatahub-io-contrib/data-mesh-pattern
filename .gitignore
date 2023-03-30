@@ -1,0 +1,7 @@
+*~
+.idea
+*.bak
+charts/
+Chart.lock
+*.tgz
+.vscode

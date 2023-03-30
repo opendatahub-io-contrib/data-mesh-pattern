@@ -1,0 +1,61 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: elyra-datamesh
+  name: elyra-datamesh
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: elyra-datamesh
+  name: elyra-datamesh
+spec:
+  completionDeadlineSeconds: 3600
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "2Gi"
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: elyra-datamesh:1.0.0
+  postCommit: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: main
+      uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
+    type: Git
+    contextDir: supply-chain/elyra
+    sourceSecret:
+      name: git-auth
+  strategy:
+    dockerStrategy:
+      dockerfilePath: datamesh/Dockerfile
+      from:
+        kind: ImageStreamTag
+        name: spark-elyra:3.3.0-elyra-3.9.1
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: 7uqdp8XlkT-IteMISzpt
+    type: GitHub
+  - generic:
+      secret: gR5-Dtb1Ie_6ILQrEcWd
+    type: Generic
+  - type: ConfigChange

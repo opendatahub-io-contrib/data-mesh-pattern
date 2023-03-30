@@ -1,0 +1,44 @@
+FROM localhost/airflow-base:latest
+
+ARG PYTHON_VERSION="3.8"
+ARG AIRFLOW_VERSION="2.5.1"
+ARG AIRFLOW_EXTRAS="crypto,celery,postgres,redis,hive,jdbc,ssh,papermill,kubernetes"
+
+USER 0
+RUN dnf install -y https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/c/crudini-0.9.3-1.el8.noarch.rpm && \
+    dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+    dnf install -y unixODBC-devel postgresql14 && dnf clean all -y
+
+USER 1001
+
+COPY scripts /opt/app-root/scripts
+
+RUN pip install apache_airflow[$AIRFLOW_EXTRAS]==$AIRFLOW_VERSION --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-$AIRFLOW_VERSION/constraints-$PYTHON_VERSION.txt"
+RUN /opt/app-root/scripts/airflow/postunpack.sh
+
+ENV AIRFLOW_HOME="/opt/app-root" \
+    APP_VERSION=$AIRFLOW_VERSION \
+    APP_NAME="airflow" \
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LD_LIBRARY_PATH="/opt/app-root/lib/python3.8/site-packages/numpy.libs/:$LD_LIBRARY_PATH" \
+    LIBNSS_WRAPPER_PATH="/usr/lib64/libnss_wrapper.so" \
+    LNAME="airflow" \
+    NSS_WRAPPER_GROUP="/opt/app-root/nss_group" \
+    NSS_WRAPPER_PASSWD="/opt/app-root/nss_passwd"
+
+RUN pip install airflow_notebook==0.0.7
+RUN pip install apache-airflow-providers-cncf-kubernetes==4.1.0
+RUN pip install papermill
+RUN pip install airflow-exporter==1.5.3
+RUN pip install psycopg2-binary
+RUN pip install authlib
+
+USER 0
+RUN chown -R 1001:0 ${APP_ROOT} && fix-permissions ${APP_ROOT} -P
+USER 1001
+
+EXPOSE 8080
+
+ENTRYPOINT [ "/opt/app-root/scripts/airflow/entrypoint.sh" ]
+CMD [ "/opt/app-root/scripts/airflow/run.sh" ]

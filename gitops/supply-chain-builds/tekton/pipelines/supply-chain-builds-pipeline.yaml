@@ -1,0 +1,291 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: supply-chain-builds-pipeline
+spec:
+  params:
+    - name: TEAM_NAME
+      type: string
+      default: "rainforest"
+
+  tasks:
+  - name: airflow-base-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "airflow-base"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: airflow-runner-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "airflow-runner"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - airflow-base-bake
+
+  - name: airflow-scheduler-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "airflow-scheduler"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - airflow-base-bake
+
+  - name: airflow-web-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "airflow-web"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - airflow-base-bake
+
+  - name: airflow-worker-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "airflow-worker"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - airflow-base-bake
+
+  - name: elyra-base-1-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "elyra-base-1"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: elyra-base-2-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "elyra-base-2"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: elyra-flink-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "elyra-flink"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: elyra-tflow-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "elyra-tflow"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: flink-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "flink"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: git-sync-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "git-sync"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: hive-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "hive"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: jupyterhub-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "jupyterhub"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: jupyterhub-idle-culler-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "jupyterhub-idle-culler"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: mlflow-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "mlflow"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: reloader-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "reloader"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: spark-base-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-base"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: spark-google-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-google"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - spark-base-bake
+
+  - name: spark-google-operator-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-google-operator"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - spark-base-bake
+
+  - name: spark-history-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-history"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - spark-base-bake
+
+  - name: spark-rad-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-rad"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+    runAfter:
+      - spark-base-bake
+
+  - name: spark-elyra-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "spark-elyra"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: superset-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "superset"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3
+
+  - name: trino-bake
+    params:
+      - name: TEAM_NAME
+        value: "$(params.TEAM_NAME)"
+      - name: APP_NAME
+        value: "trino"
+    taskRef:
+      name: bake
+    timeout: "1h0m0s"
+    retries: 3

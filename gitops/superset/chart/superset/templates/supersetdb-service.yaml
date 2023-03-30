@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "supersetdb.labels" . | nindent 4 }}
+  name: supersetdb
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+  selector:
+    {{- include "supersetdb.selectorLabels" . | nindent 4 }}

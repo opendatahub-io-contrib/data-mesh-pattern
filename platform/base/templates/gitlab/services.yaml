@@ -1,0 +1,63 @@
+{{- if .Values.gitlab }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  ports:
+  - name: 22-ssh
+    protocol: TCP
+    port: 22
+    targetPort: 22
+  - name: 80-http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}"
+  type: ClusterIP
+  sessionAffinity: None
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}-redis"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  ports:
+  - name: 6379-redis
+    protocol: TCP
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}-redis"
+  type: ClusterIP
+  sessionAffinity: None
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{ $.Values.gitlab_app_name }}-postgresql"
+  namespace: "{{ $.Values.gitlab.namespace }}"
+  labels:
+    app: "{{ $.Values.gitlab_app_name }}"
+spec:
+  ports:
+  - name: 5432-postgresql
+    protocol: TCP
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: "{{ $.Values.gitlab_app_name }}"
+    deploymentconfig: "{{ $.Values.gitlab_app_name }}-postgresql"
+  type: ClusterIP
+  sessionAffinity: None
+{{- end }}

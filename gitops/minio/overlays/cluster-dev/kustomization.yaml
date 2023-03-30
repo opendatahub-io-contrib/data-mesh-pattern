@@ -1,0 +1,4 @@
+resources:
+- ../../base
+
+namespace: rainforest-ci-cd

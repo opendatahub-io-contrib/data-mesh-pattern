@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openmetadata-dependencies-config-envs
+data:
+  ## ================
+  ## Linux Configs
+  ## ================
+  TZ: "Etc/UTC"
+  ## ================
+  ## Database Configs
+  ## ================
+  ## database host/port
+  DATABASE_HOST: "mysql.openmetadata.svc.cluster.local"
+  DATABASE_PORT: "3306"
+  ## database configs
+  DATABASE_DB: "airflow_db"
+  DATABASE_PROPERTIES: ""
+  DATABASE_USER: "airflow"
+  ## bash command which echos the URL encoded value of $DATABASE_USER
+  DATABASE_USER_CMD: |
+    echo "${DATABASE_USER}" | python3 -c "import urllib.parse; encoded_user = urllib.parse.quote(input()); print(encoded_user)"
+  ## bash command which echos the URL encoded value of $DATABASE_PASSWORD
+  DATABASE_PASSWORD_CMD: |
+    echo "${DATABASE_PASSWORD}" | python3 -c "import urllib.parse; encoded_pass = urllib.parse.quote(input()); print(encoded_pass)"
+  ## bash command which echos the DB connection string in SQLAlchemy format
+  DATABASE_SQLALCHEMY_CMD: |
+    echo -n "mysql+mysqldb://$(eval $DATABASE_USER_CMD):$(eval $DATABASE_PASSWORD_CMD)@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB}${DATABASE_PROPERTIES}"
+  ## bash command which echos the DB connection string in Celery result_backend format
+  DATABASE_CELERY_CMD: |
+    echo -n "db+mysql://$(eval $DATABASE_USER_CMD):$(eval $DATABASE_PASSWORD_CMD)@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB}${DATABASE_PROPERTIES}"

@@ -1,0 +1,14 @@
+realm: daintree-dev
+ssoNamespace: rainforest-ci-cd
+
+users:
+  user1:
+    username: "user1"
+    firstName: "Joe"
+    lastName: "Blogs"
+    email: "user1@redhatlabs.dev"
+    federatedIdentities:
+      create: True
+      userId: "5e6ba846-f869-481b-912b-3c9c78d0db94"
+    clientRole: adminRole
+    clusterRole: edit

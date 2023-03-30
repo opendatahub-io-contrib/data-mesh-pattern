@@ -1,0 +1,17 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: superset
+  labels:
+    {{- include "superset.labels" . | nindent 4 }}
+spec:
+  port:
+    targetPort: 8088-tcp
+  to:
+    kind: Service
+    name: {{ include "superset.fullname" . }}
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  wildcardPolicy: None

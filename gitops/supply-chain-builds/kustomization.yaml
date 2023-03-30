@@ -1,0 +1,22 @@
+resources:
+- airflow-base-build-config.yaml
+- airflow-runner-build-config.yaml
+- airflow-web-build-config.yaml
+- airflow-scheduler-build-config.yaml
+- airflow-worker-build-config.yaml
+- mlflow-build-config.yaml
+- spark-base-build-config.yaml
+- spark-rad-build-config.yaml
+- spark-google-build-config.yaml
+- spark-elyra-build-config.yaml
+- spark-google-operator-build-config.yaml
+- spark-history-build-config.yaml
+- reloader-build-config.yaml
+- elyra-base-build-config.yaml
+- elyra-tflow-build-config.yaml
+- trino-build-config.yaml
+- trino-hive-build-config.yaml
+- superset-build-config.yaml
+- git-sync-build-config.yaml
+- elyra-datamesh-build-config.yaml
+- tekton/

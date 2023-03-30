@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supersetdb.fullname" . }}
+  labels:
+    {{- include "supersetdb.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCountDb }}
+  selector:
+    matchLabels:
+      {{- include "supersetdb.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "supersetdb.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: postgresql
+        env:
+        - name: POSTGRESQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: supersetdb
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: supersetdb
+        - name: POSTGRESQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: supersetdb
+        image: {{ .Values.imageDb.repository }}:{{ .Values.imageDb.tag }}
+        imagePullPolicy: {{ .Values.imageDb.pullPolicy }}
+        livenessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+            - --live
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+        ports:
+        - containerPort: 5432
+        readinessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          {{- toYaml .Values.resourcesDb | nindent 10 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/pgsql/data
+          name: "supersetdb-data"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: {{ include "supersetdb.serviceAccountName" . }}
+      serviceAccountName: {{ include "supersetdb.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - name: "supersetdb-data"
+        persistentVolumeClaim:
+          claimName: supersetdb-data
