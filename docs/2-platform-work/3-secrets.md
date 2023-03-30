@@ -129,7 +129,11 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    ```
 
 12. Create auth config using our ldap admin account credentials.
- 
+
+   ```bash
+   export LDAP_ADMIN_PASSWORD=<LDAP_ADMIN_PASSWORD>
+   ```
+
    ```bash
    vault write auth/ldap/config \
      url="ldap://ipa.ipa.svc.cluster.local:389" \

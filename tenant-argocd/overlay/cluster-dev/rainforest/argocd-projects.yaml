@@ -21,6 +21,8 @@ spec:
   - name: '*'
     namespace: redhat-ods-applications
     server: '*'
+  sourceRepos:
+    - '*'
 status: {}
 ---
 apiVersion: argoproj.io/v1alpha1
