@@ -9,6 +9,9 @@ patches:
       name: spark
     patch: |-
       - op: replace
+        path: /spec/customImage
+        value: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/spark-rad:3.3.0
+      - op: replace
         path: /metadata/name
         value: spark-cluster-daintree-dev
       - op: replace
