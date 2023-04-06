@@ -4,7 +4,6 @@ bases:
 - ../../../base
 
 resources:
-  - elyra-notebook-flink-imagestream.yaml
   - elyra-notebook-datamesh-imagestream.yaml
 
 commonLabels:
