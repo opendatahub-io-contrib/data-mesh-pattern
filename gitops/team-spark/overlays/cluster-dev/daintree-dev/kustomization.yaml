@@ -1,0 +1,28 @@
+namespace: daintree-dev
+
+bases:
+- ../../../base
+
+patches:
+  - target:
+      kind: SparkCluster
+      name: spark
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: spark-cluster-daintree-dev
+      - op: replace
+        path: /spec/worker/instances
+        value: 3
+      - op: replace
+        path: /spec/worker/cpuLimit
+        value: 300m
+      - op: replace
+        path: /spec/worker/cpuRequest
+        value: 300m
+      - op: replace
+        path: /spec/worker/memoryLimit
+        value: 4Gi
+      - op: replace
+        path: /spec/worker/memoryRequest
+        value: 4Gi
