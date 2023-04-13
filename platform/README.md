@@ -1,4 +1,4 @@
-# helm base chart for rainforest platform openshift install
+# helm base chart for data mesh platform openshift install
 
 Supporting middleware infrastructure for the data mesh. 
 

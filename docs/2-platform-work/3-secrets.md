@@ -335,13 +335,13 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 
 We have an encrypted file with all of the vault commands pre-baked to create our application secrets. We need to make some quick changes before running the script.
 
-1. Using **ansible-vault** un-encrypt the Rainforest **vault-secrets** file. The decryption key will be provided by your instructor.
+1. Using **ansible-vault** un-encrypt the Data Mesh **vault-secrets** file. The decryption key will be provided by your instructor.
 
    ```bash
    ansible-vault decrypt /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
    ```
 
-2. In your IDE, Globally replace these two matches across ALL files in the Rainforest code base. This will modify some ~70 files in one go.
+2. In your IDE, Globally replace these two matches across ALL files in the Data Mesh code base. This will modify some ~70 files in one go.
 
    ![secrets-global-replace](./images/secrets-global-replace.png)
 
@@ -400,7 +400,7 @@ We have an encrypted file with all of the vault commands pre-baked to create our
    oc -n <TEAM_NAME>-ci-cd delete secret truststore
    ```
 
-4. If your <TEAM_NAME> is *not* *rainforest*, **Replace All** across files:
+4. (Optional) If your <TEAM_NAME> is *not* *rainforest*, **Replace All** across files:
 
    ```bash
    rainforest-ci-cd ->  <TEAM_NAME>-ci-cd
