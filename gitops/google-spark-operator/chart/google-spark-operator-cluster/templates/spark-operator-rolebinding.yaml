@@ -8,6 +8,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ $name }}-{{ $key }}
+  namespace: {{ $value.namespace | quote }}
   labels:
     {{- $labels | nindent 4 }}
 subjects:
@@ -26,6 +27,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: spark-history-{{ $name }}-{{ $key }}
+  namespace: {{ $value.namespace | quote }}
 subjects:
   - kind: ServiceAccount
     name: spark-history-server
