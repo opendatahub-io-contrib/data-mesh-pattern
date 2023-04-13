@@ -1,14 +1,14 @@
-## Rainforest Setup
+## Data Mesh Platform Setup
 
 <p class="warn">
-    ⛷️ <b>NOTE</b> ⛷️ - You need an OpenShift 4.11+ cluster with cluster-admin privilege to run the <strong>Rainforest</strong>. At a minimum, you need an AWS account and a RedHat developer account to create a Single Node OpenShift Spot instance. If you are a RedHat associate or partner - login to RedHat's RHPDS system and order the "AWS Blank Open Environment" sandbox. If you already have admin access to an OpenShift 4.11+ cluster - you can skip the cluster install steps.
+    ⛷️ <b>NOTE</b> ⛷️ - You need an OpenShift 4.11+ cluster with cluster-admin privilege to run the <strong>Data Mesh Platform</strong>. At a minimum, you need an AWS account and a RedHat developer account to create a Single Node OpenShift instance. If you are a RedHat associate or partner - login to RedHat's RHPDS system and order the "AWS Blank Open Environment" sandbox. If you already have admin access to an OpenShift 4.11+ cluster - you can skip the cluster install steps.
 </p>
 
 ![rhpds](./images/rhpds.png)
 
 ### SNO for 100
 
-My favourite development environment has become SNO on SPOT in AWS. With this setup, if you choose your region and zones wisely, you can have an environment running all day without interruption. All you need is an AWS account.
+My favourite development environment has become SNO on SPOT in AWS. With this setup, if you choose your region and zones wisely, you can have an environment running all day without interruption. All you need is an AWS account. You can of course run the platform on any 4.11+ OpenShift cluster, it does not have to be SNO !
 
 1. For me that is *Ohio* ! To get a 16 core, 64 GB machine for less than $4 a day i use the following [script and config to install the cluster.](https://github.com/eformat/sno-for-100)
 
@@ -462,9 +462,9 @@ We are going to use IPA for our data science users.
    
    ![ipa-group-sync](./images/ipa-group-sync.png)
 
-### Install Rainforest Base using Helm
+### Install Data Mesh Platform Base using Helm
 
-The Rainforest base tooling and operators are configured using a helm chart. This configures:
+The data mesh base tooling and operators are configured using a helm chart. This configures:
 
 - gitlab - source code repository
 - devspaces - cloud ide for platform tasks
@@ -493,7 +493,7 @@ The Rainforest base tooling and operators are configured using a helm chart. Thi
    export GITLAB_ROOT_PASSWORD=$(openssl rand -hex 8)
    ```
 
-3. Install the Rainforest platform base tooling.
+3. Install the Data Mesh Platform base tooling.
 
    ```bash
    cd platform/base

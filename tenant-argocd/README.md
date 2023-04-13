@@ -146,5 +146,5 @@ Tenant setup:
 
 Rainforest
 ```bash
-kustomize build tenant-argocd/overlay/rainforest | oc apply -n rainforest-ci-cd -f-
+kustomize build tenant-argocd/overlay/cluster-dev/rainforest | oc apply -n rainforest-ci-cd -f-
 ```

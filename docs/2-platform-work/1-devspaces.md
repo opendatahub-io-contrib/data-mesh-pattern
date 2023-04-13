@@ -49,7 +49,7 @@ We will use the DevSpaces web IDE as our code editor and toolbench for setting u
 
    ![devspaces-create](./images/devspaces-create.png)
 
-   This will open a new tab, download the devspaces stack image, clone the Rainforest codebase and start your IDE.
+   This will open a new tab, download the devspaces stack image, clone the Data Mesh codebase and start your IDE.
 
    ![devspaces-create](./images/devspaces-start.png)
 
