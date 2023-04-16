@@ -1,21 +1,27 @@
 # Data Mesh Pattern
 
+This repository is a mono-repository that provides a community pattern of distributed data mesh architecture based on open source components. As a prerequisite, we recommended reading the following foundational articles to understand the concept and approach towards building a data mesh:
+
+> [How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh][1]
+> -- <cite>Zhamak Dehghani, Thoughtworks</cite>
+
+> [Data Mesh Principles and Logical Architecture][2]
+> -- <cite>Zhamak Dehghani, Thoughtworks</cite>
+
+The community pattern implementation is based on 3 foundational principles:
+
+1. **Self-service data infrastructure as a platform:** The platform provides standardized self-service infrastructure and tooling for creating, maintaining and managing data products, for communities of data scientists and developers who may not have the technology capability or time to handle infrastructure provisioning, data storage and security, data pipeline orchestration and management or product integration.
+
+2. **Data-as-Code:** In a data mesh architecture pattern, data ownership is decentralized and domain data product owners are responsible for all capabilities within a given domain, including discoverability, understandability, quality and security of the data. In effect this is achieved by having agile, autonomous, distributed teams building data pipelines as code and data product interfaces on standard tooling and shared infrastructure services. These teams own the code for data pipelines loading, transforming and serving the data as well as the related metadata, and drive the development cycle for their own data domains. In the process, data handling logic is always treated as code, leveraging the same practices we apply to software code versioning and management to manage changes to data and metadata pipelines.
+
+3. **Federated governance:** The platform requires a layer providing a federated view of the data domains while being able to support the establishment of common operating standards around data / metadata / data lineage management, quality assurance, security and compliance policies, and by extension any cross-cutting supervision concern across all data products.
+
+The platform is deployed on top of OpenShift Container Platform and [OpenDataHub][1] based on the following component architecture:
+
 ![images/data-mesh-components.png](images/data-mesh-components.png)
 
-<p align="center">
-  Rainforest
-  <a href="https://argocd-server-rainforest-ci-cd.apps.sno.sandbox242.opentlc.com/applications/rainforest-ci-cd-app-of-apps">
-    <img alt="Rainforest App-of-Apps" src="https://argocd-server-rainforest-ci-cd.apps.sno.sandbox242.opentlc.com/api/badge?name=rainforest-ci-cd-app-of-apps&revision=true">
-  </a><br/>
-  Daintree
-  <a href="https://argocd-server-rainforest-ci-cd.apps.sno.sandbox242.opentlc.com/applications/daintree-dev-app-of-apps">
-    <img alt="Daintree App-of-Apps" src="https://argocd-server-rainforest-ci-cd.apps.sno.sandbox242.opentlc.com/api/badge?name=daintree-dev-app-of-apps&revision=true">
-  </a>  
-</p>
+The list of open source components integrated into the pattern and their respective role is summarized below.
 
-<<<<<<< HEAD
-A mono-repo containing a platform-as-a-product approach for deploying data mesh components to a Red Hat OpenShift Container Platform.
-=======
 | Component | Description |
 | --------- | ----------- |
 | Object Storage ([Ceph)][2]]| Responsible for secure storage of raw data and object-level data access for data ingestion / loading. This is a system layer where data transactions are system-based, considered to be privileged activity and typically handled via automated processes. The data security at this layer is to be governed through secure code management validating the logic of the intended data transaction and secret management to authenticate all access requests for privileged credentials and then enforce data security policies. |
@@ -42,4 +48,3 @@ A mono-repo containing a platform-as-a-product approach for deploying data mesh 
 [10]: https://fybrik.io/v1.2/
 [11]: https://superset.apache.org/
 [12]: https://pandas.pydata.org/
->>>>>>> ad9725e (Main page update for the repo)
