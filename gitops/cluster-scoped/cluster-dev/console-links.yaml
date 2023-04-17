@@ -1,0 +1,168 @@
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: gitlab
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://gitlab.com/uploads/-/system/project/avatar/278964/project_avatar.png
+  href: https://gitlab-ce.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: gitlab
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: minio
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://min.io/resources/img/logo/MINIO_Bird.png
+  href: https://minio-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: minio
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: nexus
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://user-images.githubusercontent.com/7955995/29498304-ee71d418-85c6-11e7-9f95-e87a4439ed3c.png
+  href: https://nexus-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: nexus
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: airflow
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://airflow.apache.org/images/feature-image.png
+  href: https://airflow-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: airflow
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: mlflow
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://mlflow.org/images/MLflow-logo-final-white-TM.png
+  href: https://mlflow-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: mlflow
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: openmetadata
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://openmetadata-daintree-dev.apps.foo.sandbox1234.opentlc.com/logo.svg
+  href: https://openmetadata-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: openmetadata
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: spark
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
+  href: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: spark
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: spark-history
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
+  href: https://spark-history-server-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: spark-history
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: superset
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://superset-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/assets/images/superset-logo-horiz.png
+  href: https://superset-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: superset
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: trino
+spec:
+  applicationMenu:
+    section: Datamesh
+    imageURL: https://trino-daintree-dev.apps.foo.sandbox1234.opentlc.com/ui/assets/logo.png
+  href: https://trino-daintree-dev.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: trino
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: argocd
+spec:
+  applicationMenu:
+    section: Platform SRE
+    imageURL: https://argocd-server-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/assets/images/logo.png
+  href: https://argocd-server-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/
+  location: ApplicationMenu
+  text: argocd
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: sso
+spec:
+  applicationMenu:
+    section: Platform SRE
+    imageURL: https://www.keycloak.org/resources/images/keycloak_logo_200px.svg
+  href: https://keycloak-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: sso
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: ipa
+spec:
+  applicationMenu:
+    section: Platform SRE
+    imageURL: https://avatars.githubusercontent.com/u/10979201?s=280&v=4
+  href: https://ipa-ipa.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: ipa
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: vault
+spec:
+  applicationMenu:
+    section: Platform SRE
+    imageURL: https://www.datocms-assets.com/2885/1620155128-brandhcvaultverticalcolor.svg
+  href: https://vault.apps.foo.sandbox1234.opentlc.com
+  location: ApplicationMenu
+  text: vault
