@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi8/python-38:1-104
 
 # Superset version
-ARG SUPERSET_VERSION=2.0.1
+ARG SUPERSET_VERSION=2.1.0
 
 # Configure environment
 ENV GUNICORN_BIND=0.0.0.0:8088 \
@@ -46,11 +46,11 @@ RUN dnf clean all && \
                  sqlalchemy-trino>=0.5.0 \
                  authlib>=0.15.1 \
                  python-ldap>=3.4.3 \
-                 Babel==2.12.1 \
-                 cryptography==38.0.4 \
-                 Werkzeug==2.0.3 \
-                 flask==2.0.3 \
-                 pyopenssl==22.1.0 \
+                 Babel>=2.12.1 \
+                 cryptography>=38.0.4 \
+                 Werkzeug>=2.0.3 \
+                 flask>=2.0.3 \
+                 pyopenssl>=22.1.0 \
                  pyhive \
                  markupsafe>=2.0.1 \
                  psycopg2>=2-2.9.5 \

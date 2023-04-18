@@ -32,7 +32,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: superset:2.0.0-ubi
+      name: superset:2.1.0-ubi
   postCommit: {}
   runPolicy: Serial
   source:
