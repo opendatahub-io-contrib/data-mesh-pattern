@@ -79,6 +79,13 @@ spec:
             items:
               - key: rules.json
                 path: rules.json
+        - name: trino-config-groups-volume
+          secret:
+            secretName: trino-config-groups
+            defaultMode: 420
+            items:
+              - key: groups.properties
+                path: groups.properties
       containers:
         - resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -124,6 +131,8 @@ spec:
               mountPath: /etc/trino/scripts
             - name: trino-config-rules-volume
               mountPath: /etc/trino/rules
+            - name: trino-config-groups-volume
+              mountPath: /etc/trino/groups
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
