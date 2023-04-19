@@ -32,7 +32,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: ubi-trino:392
+      name: ubi-trino:413
   postCommit: {}
   runPolicy: Serial
   source:
