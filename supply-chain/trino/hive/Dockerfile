@@ -1,16 +1,16 @@
-FROM quay.io/eformat/trino-dep:392 as base
-ARG HADOOP_VERSION=3.3.4
+FROM quay.io/eformat/trino-dep:413 as base
+ARG HADOOP_VERSION=3.3.5
 ARG METASTORE_VERSION=3.1.3
 RUN mkdir -p /tmp/hive/hadoop && tar -C /tmp/hive/hadoop --strip-components=1 -xzf /root/hadoop-${HADOOP_VERSION}.tar.gz
 RUN mkdir -p /tmp/hive/metastore && tar -C /tmp/hive/metastore --strip-components=1 -xzf /root/hive-standalone-metastore-${METASTORE_VERSION}-bin.tar.gz
 
 # Final container image:
-FROM registry.access.redhat.com/ubi8/ubi:8.6-903
+FROM registry.access.redhat.com/ubi8/ubi:8.7-1112
 
 ARG HADOOP_VERSION=3.3.4
 ARG METASTORE_VERSION=3.1.3
-ARG PROMETHEUS_VERSION=0.17.0
-ARG LOG4J_VERSION=2.18.0
+ARG PROMETHEUS_VERSION=0.18.0
+ARG LOG4J_VERSION=2.19.0
 
 ENV HADOOP_HOME=/opt/hadoop
 ENV JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk

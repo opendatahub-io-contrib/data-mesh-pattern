@@ -1,9 +1,9 @@
-FROM quay.io/eformat/trino-dep:392 as base
-ARG TRINO_VERSION=392
+FROM quay.io/eformat/trino-dep:413 as base
+ARG TRINO_VERSION=413
 RUN mkdir /tmp/trino && tar -C /tmp/trino --strip-components=1 -xzf /root/trino-server-${TRINO_VERSION}.tar.gz
 
 # Final container image:
-FROM registry.access.redhat.com/ubi8/ubi:8.6-903
+FROM registry.access.redhat.com/ubi8/ubi:8.7-1112
 
 LABEL io.k8s.display-name="OpenShift Trino" \
       io.k8s.description="This is an image used to install and run Trino." \
@@ -36,8 +36,8 @@ RUN chown -R 1000:0 ${HOME} /etc/passwd $(readlink -f ${JAVA_HOME}/lib/security/
     chmod -R 775 ${HOME}
 
 # copy artifacts
-ARG PROMETHEUS_VERSION=0.17.0
-ARG TRINO_VERSION=392
+ARG PROMETHEUS_VERSION=0.18.0
+ARG TRINO_VERSION=413
 
 COPY --from=base --chown=trino:root /tmp/trino /usr/lib/trino
 COPY --from=base --chown=trino:root /root/jmx_prometheus_javaagent-${PROMETHEUS_VERSION}.jar /usr/lib/trino/jmx_exporter.jar

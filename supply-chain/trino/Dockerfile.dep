@@ -1,15 +1,15 @@
-FROM registry.access.redhat.com/ubi8/ubi:8.6-903
+FROM registry.access.redhat.com/ubi8/ubi:8.7-1112
 
-ARG PROMETHEUS_VERSION=0.17.0
-ARG TRINO_VERSION=392
-ARG HADOOP_VERSION=3.3.4
+ARG PROMETHEUS_VERSION=0.18.0
+ARG TRINO_VERSION=413
+ARG HADOOP_VERSION=3.3.5
 ARG METASTORE_VERSION=3.1.3
-ARG LOG4J_VERSION=2.18.0
+ARG LOG4J_VERSION=2.19.0
 
 ARG SERVER_LOCATION="https://repo1.maven.org/maven2/io/trino/trino-server/${TRINO_VERSION}/trino-server-${TRINO_VERSION}.tar.gz"
 ARG CLIENT_LOCATION="https://repo1.maven.org/maven2/io/trino/trino-cli/${TRINO_VERSION}/trino-cli-${TRINO_VERSION}-executable.jar"
 ARG PROMETHEUS_JMX_EXPORTER_LOCATION="https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/${PROMETHEUS_VERSION}/jmx_prometheus_javaagent-${PROMETHEUS_VERSION}.jar"
-ARG HADOOP_LOCATION="http://apache.mirrors.hoobly.com/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz"
+ARG HADOOP_LOCATION="https://dlcdn.apache.org/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz"
 ARG HIVE_LOCATION="https://repo1.maven.org/maven2/org/apache/hive/hive-standalone-metastore/${METASTORE_VERSION}/hive-standalone-metastore-${METASTORE_VERSION}-bin.tar.gz"
 ARG LOG4J_LOCATION="https://repo1.maven.org/maven2/org/apache/logging/log4j"
 
