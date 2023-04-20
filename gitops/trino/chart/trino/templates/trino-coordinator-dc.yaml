@@ -63,8 +63,14 @@ spec:
             secretName: trino-catalog
             defaultMode: 420
             items:
-              - key: hive.properties
-                path: hive.properties
+              {{- if .Values.catalogs }}
+              {{- range $cat := .Values.catalogs }}
+              {{- if $cat.enabled }}
+              - key: {{ $cat.name }}.properties
+                path: {{ $cat.name }}.properties
+              {{- end }}
+              {{- end }}
+              {{- end }}
         - name: trino-scripts
           configMap:
             name: trino-scripts
@@ -101,16 +107,16 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.uid
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: hive-s3-secret
-                  key: AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: hive-s3-secret
-                  key: AWS_SECRET_ACCESS_KEY
+#            - name: AWS_ACCESS_KEY_ID
+#              valueFrom:
+#                secretKeyRef:
+#                  name: hive-s3-secret
+#                  key: AWS_ACCESS_KEY_ID
+#            - name: AWS_SECRET_ACCESS_KEY
+#              valueFrom:
+#                secretKeyRef:
+#                  name: hive-s3-secret
+#                  key: AWS_SECRET_ACCESS_KEY
           ports:
             - containerPort: 8080
               protocol: TCP

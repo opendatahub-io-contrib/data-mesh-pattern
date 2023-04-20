@@ -31,11 +31,6 @@ We use the ArgoCD app-of-apps pattern to deploy the set of applications that wou
    oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/cluster-dev/rainforest-ci-cd-app-of-apps.yaml
    ```
 
-<p class="warn">
-    ⛷️ <b>NOTE</b> ⛷️ - The pod limit for SNO is increased from 250 -> 500 pods to accommodate more workloads. This will cause a brief outage whilst the KubeletConfig is applied. Once the node is queryable again you can see the increased pod capacity by running `oc describe node`
-</p>
-   
-
 2. Monitor applications in ArgoCD.
 
    ![argocd-rainforest-apps](./images/argocd-rainforest-apps.png)

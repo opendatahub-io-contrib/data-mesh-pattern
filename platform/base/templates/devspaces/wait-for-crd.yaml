@@ -62,7 +62,7 @@ spec:
     - name: crd-check
       image: quay.io/openshift/origin-cli:latest
       imagePullPolicy: IfNotPresent
-      command: ['sh', '-c', 'while [ true ]; do oc get crd checlusters.org.eclipse.che devworkspaceoperatorconfigs.controller.devfile.io devworkspaceroutings.controller.devfile.io devworkspaces.workspace.devfile.io devworkspacetemplates.workspace.devfile.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc get MutatingWebhookConfiguration -l olm.webhook-description-generate-name=mchecluster.kb.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc -n openshift-operators wait pod -l app=devspaces-operator --for=condition=Ready --timeout=180s; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done;']
+      command: ['sh', '-c', 'while [ true ]; do oc get crd checlusters.org.eclipse.che devworkspaceoperatorconfigs.controller.devfile.io devworkspaceroutings.controller.devfile.io devworkspaces.workspace.devfile.io devworkspacetemplates.workspace.devfile.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc get MutatingWebhookConfiguration -l olm.webhook-description-generate-name=mchecluster.kb.io; if [ $? -eq 0 ]; then break; fi ; sleep 5s; done; while [ true ]; do oc -n openshift-operators wait pod -l app=devspaces-operator --for=condition=Ready --timeout=180s; if [ $? -eq 0 ]; then break; fi ; sleep 60s; done;']
   restartPolicy: Never
   terminationGracePeriodSeconds: 0
   serviceAccount: default

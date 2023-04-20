@@ -130,7 +130,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "hive-metastore.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "hive-metastore.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "trinodb.selectorLabels" -}}

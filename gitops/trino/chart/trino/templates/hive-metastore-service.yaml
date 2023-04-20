@@ -1,10 +1,14 @@
+{{- if .Values.catalogs }}
+{{- range $cat := .Values.catalogs }}
+{{- if $cat.enabled }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    {{- include "hive-metastore.labels" . | nindent 4 }}
-  name: hive-metastore
+    {{- include "hive-metastore.labels" $ | nindent 4 }}
+    app.kubernetes.io/instance: {{ $cat.name }}
+  name: {{ $cat.name }}-hive-metastore
 spec:
   ports:
     - name: meta
@@ -13,5 +17,9 @@ spec:
     - name: metrics
       port: 8082
   selector:
-    {{- include "hive-metastore.selectorLabels" . | nindent 4 }}
+    {{- include "hive-metastore.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/instance: {{ $cat.name }}
   sessionAffinity: None
+{{- end }}
+{{- end }}
+{{- end }}
