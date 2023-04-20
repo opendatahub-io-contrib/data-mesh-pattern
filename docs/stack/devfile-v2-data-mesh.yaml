@@ -20,7 +20,7 @@ projects:
 #      checkoutFrom:
 #        revision: main
       remotes:
-        origin: 'https://github.com/eformat/data-mesh-pattern'
+        origin: 'https://github.com/opendatahub-io-contrib/data-mesh-pattern'
     name: data-mesh
 components:
   - container:
