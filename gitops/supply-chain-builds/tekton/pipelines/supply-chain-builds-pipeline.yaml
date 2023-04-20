@@ -95,34 +95,12 @@ spec:
     timeout: "1h0m0s"
     retries: 3
 
-  - name: elyra-flink-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "elyra-flink"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
   - name: elyra-tflow-bake
     params:
       - name: TEAM_NAME
         value: "$(params.TEAM_NAME)"
       - name: APP_NAME
         value: "elyra-tflow"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
-  - name: flink-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "flink"
     taskRef:
       name: bake
     timeout: "1h0m0s"
@@ -145,28 +123,6 @@ spec:
         value: "$(params.TEAM_NAME)"
       - name: APP_NAME
         value: "hive"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
-  - name: jupyterhub-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "jupyterhub"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
-  - name: jupyterhub-idle-culler-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "jupyterhub-idle-culler"
     taskRef:
       name: bake
     timeout: "1h0m0s"

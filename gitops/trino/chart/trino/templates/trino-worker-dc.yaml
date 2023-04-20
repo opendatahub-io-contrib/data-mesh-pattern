@@ -39,8 +39,14 @@ spec:
             secretName: trino-catalog
             defaultMode: 420
             items:
-              - key: hive.properties
-                path: hive.properties
+              {{- if .Values.catalogs }}
+              {{- range $cat := .Values.catalogs }}
+              {{- if $cat.enabled }}
+              - key: {{ $cat.name }}.properties
+                path: {{ $cat.name }}.properties
+              {{- end }}
+              {{- end }}
+              {{- end }}
         - name: trino-scripts
           configMap:
             name: trino-scripts

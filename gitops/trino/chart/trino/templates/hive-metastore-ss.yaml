@@ -35,32 +35,32 @@ spec:
           - name: S3_ENDPOINT
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_S3_ENDPOINT
+                key: S3_ENDPOINT
                 name: {{ $cat.name }}-hive-s3-secret
           - name: S3_ENDPOINT_URL_PREFIX
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_S3_ENDPOINT_URL_PREFIX
+                key: S3_ENDPOINT_URL_PREFIX
                 name: {{ $cat.name }}-hive-s3-secret
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_AWS_ACCESS_KEY_ID
+                key: AWS_ACCESS_KEY_ID
                 name: {{ $cat.name }}-hive-s3-secret
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_AWS_SECRET_ACCESS_KEY
+                key: AWS_SECRET_ACCESS_KEY
                 name: {{ $cat.name }}-hive-s3-secret
           - name: S3_BUCKET_NAME
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_BUCKET
+                key: BUCKET
                 name: {{ $cat.name }}-hive-s3-secret
           - name: S3_DATA_DIR
             valueFrom:
               secretKeyRef:
-                key: {{ $cat.name | upper }}_S3_DATA_DIR
+                key: S3_DATA_DIR
                 name: {{ $cat.name }}-hive-s3-secret
           - name: DATABASE_USER
             valueFrom:
