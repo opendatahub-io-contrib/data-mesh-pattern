@@ -1,5 +1,6 @@
-replicaCount: 1
-replicaCountHive: 1
+replicaCountCoordinator: 1
+replicaCountWorkers: 3
+replicaCountDb: 3
 image:
   repository: quay.io/eformat/ubi-trino
   pullPolicy: Always
@@ -81,3 +82,4 @@ catalogs:
   # Hive Demo Catalog
   - name: demo
     enabled: true
+    replicaCountHive: 1

@@ -8,6 +8,7 @@ metadata:
   annotations:
     template.alpha.openshift.io/wait-for-ready: "true"
 spec:
+  replicas: {{ .Values.replicaCountDb }}
   selector:
     matchLabels:
       {{- include "trinodb.selectorLabels" . | nindent 6 }}
