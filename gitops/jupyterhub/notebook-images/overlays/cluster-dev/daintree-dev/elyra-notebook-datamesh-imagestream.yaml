@@ -13,7 +13,7 @@ spec:
     local: true
   tags:
   - annotations:
-      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"elyra","version":"3.9.1"}]'
+      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"elyra","version":"3.15.0"}]'
       openshift.io/imported-from: quay.io/thoth-station/s2i-lab-elyra
     from:
       kind: DockerImage

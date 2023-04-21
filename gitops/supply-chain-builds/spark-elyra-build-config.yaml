@@ -32,7 +32,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: spark-elyra:3.3.0-elyra-3.9.1
+      name: spark-elyra:3.3.0-elyra-3.15.0
   postCommit: {}
   runPolicy: Serial
   source:

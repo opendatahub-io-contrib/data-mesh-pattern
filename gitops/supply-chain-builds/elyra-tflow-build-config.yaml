@@ -48,7 +48,7 @@ spec:
       dockerfilePath: tflow/Dockerfile
       from:
         kind: ImageStreamTag
-        name: elyra-base:0.1.5
+        name: elyra-base:0.2.1
     type: Docker
   successfulBuildsHistoryLimit: 5
   triggers:

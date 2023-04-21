@@ -19,14 +19,12 @@ ADD base/0.2.1/pip.conf /etc/.
 RUN /opt/app-root/bin/pip3 install jinja2==3.1.2
 RUN /opt/app-root/bin/pip3 install certifi
 RUN /opt/app-root/bin/pip3 install jupyterlab-s3-browser==0.12.0
-RUN /opt/app-root/bin/pip3 install great_expectations==0.15.15
 
 #enable extension
 RUN jupyter serverextension enable --py jupyterlab_s3_browser
 
-# need gitlab and github support, install all. need numpy at specific version for mlflow.cli
-RUN /opt/app-root/bin/pip3 install --upgrade elyra[all]==3.12.0
-RUN /opt/app-root/bin/pip3 install numpy==1.23.5
+# need gitlab and github support, install all.
+RUN /opt/app-root/bin/pip3 install --upgrade elyra[all]==3.15.0
 
 # custom
 COPY base/0.2.1/cacerts.pem /etc/pki/ca-trust/source/anchors/cacerts.pem
