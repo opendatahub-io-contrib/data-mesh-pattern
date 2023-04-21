@@ -36,7 +36,7 @@ patchesStrategicMerge:
           openshift.io/imported-from: quay.io/thoth-station/s2i-lab-elyra
         from:
           kind: DockerImage
-          name: quay.io/thoth-station/s2i-lab-elyra:v0.2.1
+          name: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/elyra-base:0.2.1
         name: "0.2.1"
         importPolicy:
           scheduled: true
