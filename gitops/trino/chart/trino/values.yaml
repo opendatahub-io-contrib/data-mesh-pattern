@@ -1,5 +1,6 @@
 replicaCountCoordinator: 1
 replicaCountWorkers: 3
+replicaCountDb: 3
 image:
   repository: quay.io/eformat/ubi-trino
   pullPolicy: Always
