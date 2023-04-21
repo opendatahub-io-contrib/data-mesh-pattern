@@ -1,0 +1,15 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-daintree-dev
+  namespace: rhods-notebooks
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: daintree-dev
+  podSelector: {}
+  policyTypes:
+    - Ingress

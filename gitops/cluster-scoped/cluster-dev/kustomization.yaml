@@ -6,3 +6,4 @@ resources:
 - rolebinding-admin-0.yaml
 - rolebinding-image-puller.yaml
 - console-links.yaml
+- netpol-daintree-dev.yaml

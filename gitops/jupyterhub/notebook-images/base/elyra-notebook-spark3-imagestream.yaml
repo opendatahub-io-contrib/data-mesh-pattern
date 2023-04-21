@@ -13,12 +13,12 @@ spec:
     local: true
   tags:
   - annotations:
-      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"Spark","version":"v3.3.0"},{"name":"elyra","version":"3.9.1"}]'
+      opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"Spark","version":"v3.3.0"},{"name":"elyra","version":"3.15.0"}]'
       openshift.io/imported-from: quay.io/thoth-station/s2i-lab-elyra
     from:
       kind: DockerImage
-      name: quay.io/eformat/spark-elyra:3.3.0-elyra-3.9.1
-    name: "3.3.0-elyra-3.9.1"
+      name: quay.io/eformat/spark-elyra:3.3.0-elyra-3.15.0
+    name: "3.3.0-elyra-3.15.0"
     importPolicy:
       scheduled: true
     referencePolicy:

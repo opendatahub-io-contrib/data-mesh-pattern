@@ -1,4 +1,4 @@
-FROM elyra-base:0.1.5
+FROM elyra-base:0.2.1
 
 USER root
 

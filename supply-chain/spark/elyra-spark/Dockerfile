@@ -38,6 +38,7 @@ RUN /opt/app-root/bin/pip3 install pyspark==${SPARK_VERSION}
 RUN /opt/app-root/bin/pip3 install jinja2==3.1.2
 RUN /opt/app-root/bin/pip3 install certifi
 RUN /opt/app-root/bin/pip3 install jupyterlab-s3-browser==0.12.0
+RUN /opt/app-root/bin/pip3 install --upgrade elyra[all]==3.15.0
 
 #enable extension
 RUN /opt/app-root/bin/jupyter serverextension enable --py jupyterlab_s3_browser
