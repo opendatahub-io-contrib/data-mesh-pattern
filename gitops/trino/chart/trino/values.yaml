@@ -5,7 +5,7 @@ image:
   pullPolicy: Always
   tag: "413"
 imageWorker:
-  repository: quay.io/eformat/trino
+  repository: quay.io/eformat/ubi-trino
   pullPolicy: Always
   tag: "413"
 imageDb:
@@ -13,9 +13,9 @@ imageDb:
   pullPolicy: Always
   tag: "1-56"
 imageHive:
-  repository: quay.io/cloudservices/ubi-hive
+  repository: quay.io/eformat/ubi-hive
   pullPolicy: Always
-  tag: "2.3.3-002"
+  tag: "3.1.3"
 imagePullSecrets: []
 nameOverride: ""
 nameOverrideDb: ""

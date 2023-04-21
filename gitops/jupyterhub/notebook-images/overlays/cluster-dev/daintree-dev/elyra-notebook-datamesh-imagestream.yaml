@@ -15,6 +15,7 @@ spec:
   - annotations:
       opendatahub.io/notebook-software: '[{"name":"Python","version":"v3.8.13"},{"name":"elyra","version":"3.15.0"}]'
       openshift.io/imported-from: quay.io/thoth-station/s2i-lab-elyra
+      opendatahub.io/workbench-image-recommended: 'true'
     from:
       kind: DockerImage
       name: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/elyra-datamesh:1.0.0
