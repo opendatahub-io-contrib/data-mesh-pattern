@@ -1,7 +1,7 @@
 FROM quay.io/eformat/spark-base-dep:3.3.0 as base
 # base spark dep in image
 
-FROM quay.io/thoth-station/s2i-lab-elyra:v0.1.5
+FROM quay.io/thoth-station/s2i-lab-elyra:v0.2.1
 
 ARG SPARK_VERSION=3.3.0
 ARG HADOOP_VERSION=3
@@ -25,7 +25,7 @@ RUN dnf --setopt=tsflags=nodocs install -y wget java-11-openjdk python38 python3
     && rpm -q java-11-openjdk python38 python3-numpy
 
 # Cleanup
-RUN [ ! -d /tmp/scripts ] || rm -rf /tmp/scripts
+RUN [ ! -d /tmp/scripts/spark ] || rm -rf /tmp/scripts/spark
 RUN [ ! -d /tmp/artifacts ] || rm -rf /tmp/artifacts
 RUN dnf clean all && [ ! -d /var/cache/dnf ] || rm -rf /var/cache/dnf
 
@@ -70,7 +70,7 @@ ENV ELYRA_REQUIREMENTS_URL_PY37=file:///elyra-deps/requirements-elyra-py37.txt
 ENV MC_REGION="us-east-1"
 RUN mkdir -p /opt/app-root/src/.mc/certs/CAs/
 ADD base/cacerts.pem /opt/app-root/src/.mc/certs/CAs/
-COPY elyra-spark/mc /opt/app-root/bin/mc
+COPY elyra-spark/mc /opt/app-root/bin/vaulmc
 RUN chown -R 1001:1001 /opt/app-root/src/.mc
 
 # Image start

@@ -56,7 +56,7 @@
 9. Create a **hive catalog** from our **wine_quality.csv** data stored in S3 (make sure you copy the csv fle into s3 from the Spark Exercise)
 
    ```iso92-sql
-   CREATE TABLE hive.default.wine_quality
+   CREATE TABLE demo.default.wine_quality
    (
    "fixed acidity" VARCHAR,
    "volatile acidity" VARCHAR,
@@ -82,7 +82,7 @@
 10. Select the **+** in the SQLEditor to create a new query. This will run using trino and you should see rows returned. 
 
    ```iso92-sql
-   select * from hive.default.wine_quality;
+   select * from demo.default.wine_quality;
    ```
 
    ![4-superset-sql-select-all](./images/4-superset-sql-select-all.png)

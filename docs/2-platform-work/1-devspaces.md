@@ -11,34 +11,7 @@ We will use the DevSpaces web IDE as our code editor and toolbench for setting u
 
    ![devspaces-oauth](./images/devspaces-oauth.png)
 
-2. We are using a private github repository for the **opendatahub-io-contrib/data-mesh-pattern** code at the moment. DevSpaces supports this, let's create a credential secret to be able to access the repo. The **GITHUB_TOKEN** will be provided by your instructor.
-
-   ```bash
-   export GITHUB_TOKEN=<token>
-   ```
-
-   ```bash
-   export USER_NAME=admin 
-   ```
-
-   ```bash
-   oc -n ${USER_NAME}-devspaces apply -f - <<EOF
-   kind: Secret
-   apiVersion: v1
-   metadata:
-     name: devspaces-git-creds
-     annotations:
-       controller.devfile.io/mount-path: /tmp/.git-credentials/
-     labels:
-       controller.devfile.io/git-credential: "true"
-       controller.devfile.io/watch-secret: "true"
-       controller.devfile.io/mount-to-devworkspace: "true"
-   stringData:
-     credentials: https://foo:${GITHUB_TOKEN}@github.com
-   EOF
-   ```
-
-3. Create your workspace. On DevSpaces Workspaces, **Create Workspace > Import from Git**
+2. Create your workspace. On DevSpaces Workspaces, **Create Workspace > Import from Git**
 
    <p class="warn">
    For OpenShift 4.11+ - Enter this URL to load the dev stack:</br>
@@ -57,11 +30,11 @@ We will use the DevSpaces web IDE as our code editor and toolbench for setting u
 
    ![devspaces-git-trust](./images/devspaces-git-trust.png)
 
-4. Login to Terminal in DevSpaces by selecting the hamburger menu in top left - **Terminal > New Terminal**.
+3. Login to Terminal in DevSpaces by selecting the hamburger menu in top left - **Terminal > New Terminal**.
 
    ![devspaces-terminal](./images/devspaces-terminal.png)
 
-6. Export our environment variables and launch **zsh** shell. You can **paste** using **CTRL+SHIFT+V** in the terminal, accept any first time cut-n-paste browser/prompts.
+4. Export our environment variables and launch **zsh** shell. You can **paste** using **CTRL+SHIFT+V** in the terminal, accept any first time cut-n-paste browser/prompts.
  
    ```bash
    echo export TEAM_NAME="<TEAM_NAME>" | tee -a ~/.bashrc -a ~/.zshrc 
@@ -75,7 +48,7 @@ We will use the DevSpaces web IDE as our code editor and toolbench for setting u
 
    ![devspaces-zsh](./images/devspaces-zsh.png)
 
-7. Check if you can connect to OpenShift. Run the command below.
+5. Check if you can connect to OpenShift. Run the command below.
 
    ```bash
    export USER_NAME=<USER NAME>

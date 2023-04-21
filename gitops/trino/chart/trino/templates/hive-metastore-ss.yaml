@@ -1,23 +1,29 @@
+{{- if .Values.catalogs }}
+{{- range $cat := .Values.catalogs }}
+{{- if $cat.enabled }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "hive-metastore.fullname" . }}
+  name: {{ $cat.name }}-{{ include "hive-metastore.fullname" $ }}
   labels:
-    {{- include "hive-metastore.labels" . | nindent 4 }}
+    {{- include "hive-metastore.labels" $ | nindent 4 }}
+    app.kubernetes.io/instance: {{ $cat.name }}
   annotations:
     configmap.reloader.stakater.com/reload: "hive-config,hive-scripts"
-    secret.reloader.stakater.com/reload: "hive-s3-secret"
+    secret.reloader.stakater.com/reload: "{{ $cat.name }}-hive-s3-secret"
 spec:
-  replicas: {{ .Values.replicaCountHive }}
+  replicas: {{ $.Values.replicaCountHive }}
   selector:
     matchLabels:
-      {{- include "hive-metastore.selectorLabels" . | nindent 6 }}
-  serviceName: hive-metastore
+      {{- include "hive-metastore.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/instance: {{ $cat.name }}
+  serviceName: {{ $cat.name }}-hive-metastore
   template:
     metadata:
       labels:
-        {{- include "hive-metastore.selectorLabels" . | nindent 8 }}
+        {{- include "hive-metastore.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/instance: {{ $cat.name }}
     spec:
       containers:
       - name: metastore
@@ -30,32 +36,32 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: S3_ENDPOINT
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: S3_ENDPOINT_URL_PREFIX
             valueFrom:
               secretKeyRef:
                 key: S3_ENDPOINT_URL_PREFIX
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
                 key: AWS_ACCESS_KEY_ID
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 key: AWS_SECRET_ACCESS_KEY
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: S3_BUCKET_NAME
             valueFrom:
               secretKeyRef:
                 key: BUCKET
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: S3_DATA_DIR
             valueFrom:
               secretKeyRef:
                 key: S3_DATA_DIR
-                name: hive-s3-secret
+                name: {{ $cat.name }}-hive-s3-secret
           - name: DATABASE_USER
             valueFrom:
               secretKeyRef:
@@ -84,8 +90,8 @@ spec:
               resourceFieldRef:
                 containerName: metastore
                 resource: limits.memory
-        image: {{ .Values.imageHive.repository }}:{{ .Values.imageHive.tag }}
-        imagePullPolicy: {{ .Values.imageHive.pullPolicy }}
+        image: {{ $.Values.imageHive.repository }}:{{ $.Values.imageHive.tag }}
+        imagePullPolicy: {{ $.Values.imageHive.pullPolicy }}
         ports:
           - containerPort: 9083
             name: meta
@@ -110,7 +116,7 @@ spec:
           successThreshold: 1
           timeoutSeconds: 5
         resources:
-          {{- toYaml .Values.resourcesHive | nindent 10 }}
+          {{- toYaml $.Values.resourcesHive | nindent 10 }}
         volumeMounts:
           - mountPath: /opt/hive-metastore-bin/conf
             name: metastore-conf
@@ -132,8 +138,8 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: {{ include "hive-metastore.serviceAccountName" . }}
-      serviceAccountName: {{ include "hive-metastore.serviceAccountName" . }}
+      serviceAccount: {{ include "hive-metastore.serviceAccountName" $ }}
+      serviceAccountName: {{ include "hive-metastore.serviceAccountName" $ }}
       terminationGracePeriodSeconds: 5
       volumes:
         - name: metastore-conf
@@ -157,3 +163,6 @@ spec:
           secret:
             defaultMode: 420
             secretName: hadoop-config
+{{- end }}
+{{- end }}
+{{- end }}

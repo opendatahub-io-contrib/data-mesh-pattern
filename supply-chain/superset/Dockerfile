@@ -43,6 +43,7 @@ RUN pip install --upgrade pip
 RUN dnf clean all && \
     rm -rf /var/yum/cache/* && \
     pip install -v apache-superset==${SUPERSET_VERSION} \
+                 sqlparse==0.4.3 \
                  sqlalchemy-trino>=0.5.0 \
                  authlib>=0.15.1 \
                  python-ldap>=3.4.3 \

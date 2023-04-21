@@ -170,6 +170,12 @@ I use acme.sh all the time for generating Lets Encrypt certs, its easy and fast.
    watch oc get co
    ```
 
+9. (Optional) If you think you will need more than the 250 pods per node, apply the large pods `kubeletconfig` - this will reboot the SNO cluster.
+
+   ```bash
+   oc apply -f platform/kubelet-config.yaml
+   ```
+
 ### Configure Extra Disk
 
 To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM Operator to use it as the default dynamic Storage Class for my SNO instance.
@@ -500,6 +506,10 @@ The data mesh base tooling and operators are configured using a helm chart. This
    ```
 
    ```bash
+   helm dep up
+   ```
+
+   ```bash
    helm upgrade --install platform-base . \
      --set vault.server.route.host=$VAULT_ROUTE \
      --set vault.server.extraEnvironmentVars.VAULT_TLS_SERVER_NAME=$VAULT_ROUTE \
@@ -517,13 +527,7 @@ The data mesh base tooling and operators are configured using a helm chart. This
 
    ![devspaces-pods](./images/devspaces-pods.png)
 
-4. (Optional) If you think you will need more than the 250 pods per node, apply the large pods `kubeletconfig` - this will reboot the SNO cluster.
-
-  ```bash
-   oc apply -f platform/kubelet-config.yaml
-   ```
-
-5. We need to add specific RBAC for our data science user group. We will give them namespace edit access on the `daintree-dev` project where their data science tools will live.
+4. We need to add specific RBAC for our data science user group. We will give them namespace edit access on the `daintree-dev` project where their data science tools will live.
 
    ```bash
    oc adm policy add-role-to-group edit student -n daintree-dev 
