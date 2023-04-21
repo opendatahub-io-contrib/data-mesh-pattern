@@ -13,7 +13,7 @@ metadata:
     configmap.reloader.stakater.com/reload: "hive-config,hive-scripts"
     secret.reloader.stakater.com/reload: "{{ $cat.name }}-hive-s3-secret"
 spec:
-  replicas: {{ $.Values.replicaCountHive }}
+  replicas: {{ $cat.replicaCountHive }}
   selector:
     matchLabels:
       {{- include "hive-metastore.selectorLabels" $ | nindent 6 }}

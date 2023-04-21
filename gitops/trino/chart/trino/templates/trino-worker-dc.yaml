@@ -9,7 +9,7 @@ metadata:
     configmap.reloader.stakater.com/reload: "trino-config,trino-scripts"
     secret.reloader.stakater.com/reload: "trino-config,trino-catalog,trino-truststore,trino-keystore"
 spec:
-  replicas: 3
+  replicas: {{ .Values.replicaCountWorker }}
   selector:
     matchLabels:
       {{- include "trinoworker.selectorLabels" . | nindent 6 }}
@@ -76,16 +76,6 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.uid
-#            - name: AWS_ACCESS_KEY_ID
-#              valueFrom:
-#                secretKeyRef:
-#                  name: hive-s3-secret
-#                  key: AWS_ACCESS_KEY_ID
-#            - name: AWS_SECRET_ACCESS_KEY
-#              valueFrom:
-#                secretKeyRef:
-#                  name: hive-s3-secret
-#                  key: AWS_SECRET_ACCESS_KEY
           ports:
             - containerPort: 8080
               protocol: TCP
