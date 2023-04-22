@@ -21,6 +21,9 @@ spec:
   - name: '*'
     namespace: redhat-ods-applications
     server: '*'
+  - name: '*'
+    namespace: rhods-notebooks
+    server: '*'
   sourceRepos:
     - '*'
 status: {}

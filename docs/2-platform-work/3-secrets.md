@@ -399,14 +399,16 @@ We have an encrypted file with all of the vault commands pre-baked to create our
    ```bash
    oc -n <TEAM_NAME>-ci-cd delete secret truststore
    ```
+   
+4. Manually update the value of the LDAP_BIND_PASSWORD in the #trino-truststore section of **vault-rainforest** secrets file.
 
-4. (Optional) If your <TEAM_NAME> is *not* *rainforest*, **Replace All** across files:
+5. (Optional) If your <TEAM_NAME> is *not* *rainforest*, **Replace All** across files:
 
    ```bash
    rainforest-ci-cd ->  <TEAM_NAME>-ci-cd
    ```
 
-5. Create all the application secrets in vault. Run this script.
+6. Create all the application secrets in vault. Run this script.
 
    ```bash
    sh /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
@@ -418,7 +420,7 @@ We have an encrypted file with all of the vault commands pre-baked to create our
 
    You can also browse to these in the Vault UI.
 
-6. Encrypt rainforest vault-secrets file and check all our changes into git.
+7. Encrypt rainforest vault-secrets file and check all our changes into git.
 
    ```bash
    ansible-vault encrypt /projects/data-mesh-pattern/gitops/secrets/vault-rainforest
