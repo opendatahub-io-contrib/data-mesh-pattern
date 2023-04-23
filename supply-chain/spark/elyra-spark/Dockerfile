@@ -71,7 +71,7 @@ ENV ELYRA_REQUIREMENTS_URL_PY37=file:///elyra-deps/requirements-elyra-py37.txt
 ENV MC_REGION="us-east-1"
 RUN mkdir -p /opt/app-root/src/.mc/certs/CAs/
 ADD base/cacerts.pem /opt/app-root/src/.mc/certs/CAs/
-COPY elyra-spark/mc /opt/app-root/bin/vaulmc
+COPY elyra-spark/mc /opt/app-root/bin/mc
 RUN chown -R 1001:1001 /opt/app-root/src/.mc
 
 # Image start
