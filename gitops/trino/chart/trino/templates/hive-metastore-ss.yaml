@@ -66,14 +66,14 @@ spec:
             valueFrom:
               secretKeyRef:
                 key: database-user
-                name: trino-db-secret
+                name: {{ $cat.name }}-hive-db
           - name: DATABASE_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: database-password
-                name: trino-db-secret
+                name: {{ $cat.name }}-hive-db
           - name: DATABASE_HOST
-            value: "trino-db"
+            value: {{ $cat.name }}-hive-db
           - name: DATABASE_PORT
             value: "5432"
           - name: DATABASE_NAME

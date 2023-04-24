@@ -1,0 +1,22 @@
+{{- if .Values.catalogs }}
+{{- range $cat := .Values.catalogs }}
+{{- if $cat.enabled }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $cat.name }}-hive-db-volume
+  labels:
+    {{- include "hive-metastore.labels" $ | nindent 4 }}
+    app.kubernetes.io/instance: {{ $cat.name }}
+spec:
+  {{- with $.Values.database.accessModes }}
+  accessModes:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $.Values.database.storage | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
