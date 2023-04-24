@@ -7,7 +7,7 @@ apiVersion: v1
 metadata:
   name: {{ $cat.name }}-hive-db
   labels:
-    {{- include "hivedb.labels" . | nindent 4 }}
+    {{- include "hivedb.labels" $ | nindent 4 }}
   annotations:
     template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
 spec:
@@ -17,7 +17,7 @@ spec:
       port: 5432
       targetPort: 5432
   selector:
-    {{- include "hivedb.selectorLabels" . | nindent 4 }}
+    {{- include "hivedb.selectorLabels" $ | nindent 4 }}
     app.kubernetes.io/instance: {{ $cat.name }}
 {{- end }}
 {{- end }}

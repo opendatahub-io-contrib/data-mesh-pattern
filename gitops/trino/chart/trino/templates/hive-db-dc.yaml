@@ -5,9 +5,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $cat.name }}-{{ include "hivedb.fullname" . }}
+  name: {{ $cat.name }}-{{ include "hivedb.fullname" $ }}
   labels:
-    {{- include "hivedb.labels" . | nindent 4 }}
+    {{- include "hivedb.labels" $ | nindent 4 }}
     app.kubernetes.io/instance: {{ $cat.name }}
   annotations:
     template.alpha.openshift.io/wait-for-ready: "true"
@@ -66,8 +66,8 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      serviceAccount: {{ include "hivedb.serviceAccountName" . }}
-      serviceAccountName: {{ include "hivedb.serviceAccountName" . }}
+      serviceAccount: {{ include "hivedb.serviceAccountName" $ }}
+      serviceAccountName: {{ include "hivedb.serviceAccountName" $ }}
       terminationGracePeriodSeconds: 5
       volumes:
         - name: "postgresql-data"
