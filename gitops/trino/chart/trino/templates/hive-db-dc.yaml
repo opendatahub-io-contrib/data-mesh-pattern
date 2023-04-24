@@ -23,6 +23,7 @@ spec:
     metadata:
       labels:
         {{- include "hivedb.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/instance: {{ $cat.name }}
     spec:
       containers:
         - name: postgresql

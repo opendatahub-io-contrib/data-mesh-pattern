@@ -9,7 +9,7 @@ metadata:
     configmap.reloader.stakater.com/reload: "trino-config,trino-scripts"
     secret.reloader.stakater.com/reload: "trino-config,trino-catalog,trino-truststore,trino-keystore"
 spec:
-  replicas: {{ .Values.replicaCountWorker }}
+  replicas: {{ .Values.replicaCountWorkers }}
   selector:
     matchLabels:
       {{- include "trinoworker.selectorLabels" . | nindent 6 }}
