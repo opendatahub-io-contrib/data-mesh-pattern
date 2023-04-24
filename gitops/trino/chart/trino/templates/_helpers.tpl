@@ -9,8 +9,8 @@ Expand the name of the chart.
 {{- default "hive-metastore" .Values.nameOverrideHive | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "trinodb.name" -}}
-{{- default "trinodb" .Values.nameOverrideDb | trunc 63 | trimSuffix "-" }}
+{{- define "hivedb.name" -}}
+{{- default "hivedb" .Values.nameOverrideDb | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "trinoworker.name" -}}
@@ -48,11 +48,11 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
-{{- define "trinodb.fullname" -}}
+{{- define "hivedb.fullname" -}}
 {{- if .Values.fullnameOverrideDb }}
 {{- .Values.fullnameOverrideDb | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default "trinodb" .Values.nameOverrideDb }}
+{{- $name := default "hivedb" .Values.nameOverrideDb }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -102,9 +102,9 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{- define "trinodb.labels" -}}
+{{- define "hivedb.labels" -}}
 helm.sh/chart: {{ include "trino.chart" . }}
-{{ include "trinodb.selectorLabels" . }}
+{{ include "hivedb.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -132,9 +132,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/name: {{ include "hive-metastore.name" . }}
 {{- end }}
 
-{{- define "trinodb.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "trinodb.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- define "hivedb.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "hivedb.name" . }}
 {{- end }}
 
 {{- define "trinoworker.selectorLabels" -}}
@@ -161,7 +160,7 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "trinodb.serviceAccountName" -}}
+{{- define "hivedb.serviceAccountName" -}}
 {{- if .Values.serviceAccountDb.create }}
 {{- default (include "trino.fullname" .) .Values.serviceAccountDb.name }}
 {{- else }}
