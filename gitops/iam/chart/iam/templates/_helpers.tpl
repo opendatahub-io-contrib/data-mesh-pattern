@@ -67,8 +67,6 @@ jhub:
 - "admin"
 spark-history:
 - "admin"
-mlflow:
-- "admin"
 grafana:
 - "Admin"
 {{- end }}
@@ -87,8 +85,6 @@ jhub:
 - "admin"
 spark-history:
 - "admin"
-mlflow:
-- "admin"
 grafana:
 - "Editor"
 {{- end }}
@@ -105,8 +101,6 @@ aflow:
 jhub:
 - "admin"
 spark-history:
-- "admin"
-mlflow:
 - "admin"
 grafana:
 - "Editor"

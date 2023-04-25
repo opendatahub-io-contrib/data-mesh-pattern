@@ -128,17 +128,6 @@ spec:
     timeout: "1h0m0s"
     retries: 3
 
-  - name: mlflow-bake
-    params:
-      - name: TEAM_NAME
-        value: "$(params.TEAM_NAME)"
-      - name: APP_NAME
-        value: "mlflow"
-    taskRef:
-      name: bake
-    timeout: "1h0m0s"
-    retries: 3
-
   - name: reloader-bake
     params:
       - name: TEAM_NAME

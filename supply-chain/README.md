@@ -18,7 +18,6 @@ We are using GNU make for local loop testing. This repo is set out with a top le
 .
 ├── Makefile
 ├── airflow
-├── mlflow
 ├── spark
 └── ...
 ```

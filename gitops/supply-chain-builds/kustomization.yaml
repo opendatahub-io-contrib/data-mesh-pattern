@@ -4,7 +4,6 @@ resources:
 - airflow-web-build-config.yaml
 - airflow-scheduler-build-config.yaml
 - airflow-worker-build-config.yaml
-- mlflow-build-config.yaml
 - spark-base-build-config.yaml
 - spark-rad-build-config.yaml
 - spark-google-build-config.yaml
