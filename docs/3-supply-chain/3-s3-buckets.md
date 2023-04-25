@@ -29,7 +29,6 @@ Ideally we could automate this S3 configuration. But we keep this separate for n
    
    ```bash
    mc mb dev/airflow-${PROJECT_NAME}
-   mc mb dev/spark-history-${PROJECT_NAME}/spark-data
    mc mb dev/hive-${PROJECT_NAME}
    mc mb dev/pachyderm
    mc mb dev/iceberg
@@ -46,4 +45,4 @@ Ideally we could automate this S3 configuration. But we keep this separate for n
 
    ![minio](./images/minio.png)
 
-   If you check back in ArgoCD, the **google-spark** app should now be **Healthy**.
+   If you check back in ArgoCD, all apps should now be **Healthy**.

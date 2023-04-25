@@ -1,4 +1,4 @@
-FROM quay.io/eformat/spark-elyra:3.3.0
+FROM quay.io/eformat/elyra-base:0.2.1
 
 USER root
 

@@ -9,7 +9,7 @@ In this exercise, we will use our AIMLOPS platform tools to run lots of demo app
 
 ## 🔮 Learning Outcomes
 
-- [ ] Can have fun with python, notebooks, jupyterhub, mlfow, airflow, spark, seldon and much more  !
+- [ ] Can have fun with python, notebooks, jupyterhub, airflow and much more  !
 - [ ] Can learn about AIML safely !
 
 ## 🔨 Tools used in this exercise!

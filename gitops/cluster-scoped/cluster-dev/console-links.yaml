@@ -62,30 +62,6 @@ spec:
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: spark
-spec:
-  applicationMenu:
-    section: Datamesh
-    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
-  href: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com
-  location: ApplicationMenu
-  text: spark
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
-  name: spark-history
-spec:
-  applicationMenu:
-    section: Datamesh
-    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
-  href: https://spark-history-server-daintree-dev.apps.foo.sandbox1234.opentlc.com
-  location: ApplicationMenu
-  text: spark-history
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
   name: superset
 spec:
   applicationMenu:
