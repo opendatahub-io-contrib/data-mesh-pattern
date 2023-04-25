@@ -23,7 +23,6 @@ RUN pip install --no-cache-dir jinja2==3.0.3
 RUN pip install --no-cache-dir minio==7.1.8
 RUN pip install --no-cache-dir boto3==1.24.5
 RUN pip install --no-cache-dir nbconvert==6.2.0
-RUN pip install --no-cache-dir mlflow==2.1.1
 
 # speddup build - extra airflow runtime model deps
 RUN /opt/app-root/bin/pip3 install install cloudpickle==2.0.0 joblib==1.1.0 numpy==1.23.1 psutil==5.9.0 scikit-learn==1.1.1 scipy==1.8.1 threadpoolctl==3.1.0 typing-extensions==3.10.0.2

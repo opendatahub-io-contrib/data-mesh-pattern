@@ -63,12 +63,6 @@ superset:
 - "Admin"
 aflow:
 - "Admin"
-jhub:
-- "admin"
-spark-history:
-- "admin"
-mlflow:
-- "admin"
 grafana:
 - "Admin"
 {{- end }}
@@ -83,12 +77,6 @@ superset:
 - "sql_lab"
 aflow:
 - "User"
-jhub:
-- "admin"
-spark-history:
-- "admin"
-mlflow:
-- "admin"
 grafana:
 - "Editor"
 {{- end }}
@@ -102,12 +90,6 @@ superset:
 - "Admin"
 aflow:
 - "Admin"
-jhub:
-- "admin"
-spark-history:
-- "admin"
-mlflow:
-- "admin"
 grafana:
 - "Editor"
 {{- end }}

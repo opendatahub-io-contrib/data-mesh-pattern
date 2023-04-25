@@ -50,18 +50,6 @@ spec:
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: mlflow
-spec:
-  applicationMenu:
-    section: Datamesh
-    imageURL: https://mlflow.org/images/MLflow-logo-final-white-TM.png
-  href: https://mlflow-daintree-dev.apps.foo.sandbox1234.opentlc.com
-  location: ApplicationMenu
-  text: mlflow
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
   name: openmetadata
 spec:
   applicationMenu:
@@ -70,30 +58,6 @@ spec:
   href: https://openmetadata-daintree-dev.apps.foo.sandbox1234.opentlc.com
   location: ApplicationMenu
   text: openmetadata
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
-  name: spark
-spec:
-  applicationMenu:
-    section: Datamesh
-    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
-  href: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com
-  location: ApplicationMenu
-  text: spark
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
-  name: spark-history
-spec:
-  applicationMenu:
-    section: Datamesh
-    imageURL: https://spark-cluster-daintree-dev-daintree-dev.apps.foo.sandbox1234.opentlc.com/static/spark-logo-77x50px-hd.png
-  href: https://spark-history-server-daintree-dev.apps.foo.sandbox1234.opentlc.com
-  location: ApplicationMenu
-  text: spark-history
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink

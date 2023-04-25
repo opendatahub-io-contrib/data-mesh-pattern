@@ -41,7 +41,7 @@ We use the ArgoCD app-of-apps pattern to deploy the set of applications that wou
 
    ![build-storm](./images/build-storm.png)
 
-   Not all Builds start immediately - some are triggered once their base image is built e.g. (airflow, spark, elyra). In the Lab, all BuildConfigs are configured to push images to the internal OpenShift registry.
+   Not all Builds start immediately - some are triggered once their base image is built e.g. (airflow, elyra). In the Lab, all BuildConfigs are configured to push images to the internal OpenShift registry.
 
    ☕☕☕ Monitor the Builds, they should all succeed. Some may need restarting if they fail for an unknown reason. Now is a great time to get some coffee, this step can take ~60mins ☕☕☕
 

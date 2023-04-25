@@ -10,7 +10,7 @@ With all the images built, we can now create our team applications. In the Lab w
    oc -n <TEAM_NAME>-ci-cd apply -f gitops/argocd/cluster-dev/daintree-dev-app-of-apps.yaml
    ```
 
-   In ArgoCD we can filter by **Project** for daintree apps. After several minutes they should all **Sync**. It is expected that **airflow** and **google-spark** will remain in the **Progressing** or **Degraded** Status until we configure S3 Buckets in the next step.
+   In ArgoCD we can filter by **Project** for daintree apps. After several minutes they should all **Sync**. It is expected that **airflow** will remain in the **Progressing** or **Degraded** Status until we configure S3 Buckets in the next step.
 
    ![argocd-daintree-apps](./images/argocd-daintree-apps.png)
 

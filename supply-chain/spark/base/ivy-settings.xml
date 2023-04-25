@@ -1,6 +1,0 @@
-<ivysettings>
-<settings defaultResolver="nexus"/>
-<resolvers>
-<ibiblio name="nexus" m2compatible="true" root="https://nexus-rainforest-ci-cd.apps.foo.sandbox1234.opentlc.com/repository/maven-public/"/>
-</resolvers>
-</ivysettings>
