@@ -101,7 +101,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 8. Login to Hashi Vault UI using the ROOT_TOKEN. This is useful for debugging and visually understanding Vault. It uses a self signed certificate, so accepts TLS warnings in the browser.
 
     ```bash
-    echo https://$(oc get route platform-base-vault --template='{{ .spec.host }}' -n rainforest)
+    echo https://$(oc get route platform-base-vault --template='{{ .spec.host }}' -n data-mesh)
     ```
 
    ![secrets-vault-login](./images/secrets-vault-login.png)
