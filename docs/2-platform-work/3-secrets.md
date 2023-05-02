@@ -243,21 +243,11 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    period=120s
    ```
 
-   We will use the long lived Service Account token secret 
-
-   ```bash
-   export SA_TOKEN=$(oc -n ${PROJECT_NAME} get sa/${SERVICE_ACCOUNT} -o yaml | grep ${APP_NAME}-token | awk '{print $3}')
-   export SA_JWT_TOKEN=$(oc -n ${PROJECT_NAME} get secret $SA_TOKEN -o jsonpath="{.data.token}" | base64 --decode; echo)
-   export SA_CA_CRT=$(oc -n ${PROJECT_NAME} get secret $SA_TOKEN -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-   ```
-
-   Check that $SA_JWT_TOKEN is set OK. Now write this into our k8s auth config.
+   Configure the K8S auth method. It will automatically use the argocd-repo pod's own identity to authenticate with Kubernetes when querying the token review API.
 
    ```bash
    vault write auth/$CLUSTER_DOMAIN-${PROJECT_NAME}/config \
-   token_reviewer_jwt="$SA_JWT_TOKEN" \
-   kubernetes_host="$(oc whoami --show-server)" \
-   kubernetes_ca_cert="$SA_CA_CRT"
+   kubernetes_host="$(oc whoami --show-server)"
    ```
 
 21. Create the team ArgoCD Vault Plugin Secret that is used to find the correct path to the k8s auth we just created. 
