@@ -29,20 +29,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    EOF
    ```
 
-3. Link secret vault-token to sa
-
-   ```bash
-   oc -n ${TEAM_NAME}-ci-cd secrets link ${SERVICE_ACCOUNT} vault-token
-   ```
-
-4. The Service Account mst be able to read secrets and be used for authentication in our <TEAM_NAME>-ci-cd namespace. Let's create the RBAC.
-
-   ```bash
-   oc adm policy add-cluster-role-to-user edit -z ${SERVICE_ACCOUNT} -n ${TEAM_NAME}-ci-cd
-   oc adm policy add-cluster-role-to-user system:auth-delegator -z ${SERVICE_ACCOUNT} -n ${TEAM_NAME}-ci-cd
-   ```
-
-5. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
+3. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
 
    ```yaml
    cat <<EOF | oc -n ${TEAM_NAME}-ci-cd apply -f -
@@ -63,7 +50,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 
    ![secrets-argocd-git](./images/secrets-argocd-git.png)
 
-6. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
+4. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator init -key-threshold=1 -key-shares=1
@@ -86,7 +73,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    export ROOT_TOKEN=<root token>
    ```
 
-7. Unseal the vault.   
+5. Unseal the vault.   
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator unseal $UNSEAL_KEY
