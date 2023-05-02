@@ -10,6 +10,7 @@
   * [🎸 Deploy Apps](3-supply-chain/2-deploy-apps.md)
   * [🪣 S3 Buckets](3-supply-chain/3-s3-buckets.md)
   * [👔 SSO](3-supply-chain/4-sso.md)
+  * [🐑️ DAGS Repo](3-supply-chain/5-dags-repo.md)
 * [4. Demos](4-aiml-demos/README.md)
   * [𝌭 Placeholder](4-aiml-demos/0-placeholder.md)
 
