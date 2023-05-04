@@ -16,11 +16,16 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
    export SERVICE_ACCOUNT=vault
    ```
 
-3. Create our ci-cd namespace and link the secret vault-token to sa
+3. Create our ci-cd namespace:
 
    ```bash
    oc new-project ${TEAM_NAME}-ci-cd
-   oc -n ${TEAM_NAME}-ci-cd secrets link ${SERVICE_ACCOUNT} vault-token
+   ```
+
+   Create vault SA that runs the repo server:
+
+   ```bash
+   oc -n ${TEAM_NAME}-ci-cd create sa ${SERVICE_ACCOUNT}
    ```
 
 4. The Service Account mst be able to read secrets and be used for authentication in our <TEAM_NAME>-ci-cd namespace. Let's create the RBAC.
@@ -75,7 +80,7 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
    ignoreHelmHooks: true
    operator: []
    namespaces:
-   - ${TEAM_NAME}-ci-cd
+     - ${TEAM_NAME}-ci-cd
    argocd_cr:
      statusBadgeEnabled: true
      repo:
@@ -98,11 +103,11 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
              mode: 509
        - name: vault-plugin-kustomize
          configMap:
-          name: argocd-vault-plugins
-          items:
-          - key: kustomize-plugin.yaml
-            path: plugin.yaml
-            mode: 509
+           name: argocd-vault-plugins
+           items:
+           - key: kustomize-plugin.yaml
+             path: plugin.yaml
+             mode: 509
        - name: cmp-tmp-vault
          emptyDir: {}
        - name: cmp-tmp-helm
@@ -140,19 +145,19 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
            capabilities:
              drop:
              - ALL
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          seccompProfile:
-            type: RuntimeDefault
+           readOnlyRootFilesystem: true
+           runAsNonRoot: true
+           seccompProfile:
+             type: RuntimeDefault
          volumeMounts:
-         - mountPath: /var/run/argocd
-           name: var-files
-         - mountPath: /home/argocd/cmp-server/config
-           name: vault-plugin
-         - mountPath: /home/argocd/cmp-server/plugins
-           name: plugins
-         - mountPath: /tmp
-           name: cmp-tmp-vault
+           - mountPath: /var/run/argocd
+             name: var-files
+           - mountPath: /home/argocd/cmp-server/config
+             name: vault-plugin
+           - mountPath: /home/argocd/cmp-server/plugins
+             name: plugins
+           - mountPath: /tmp
+             name: cmp-tmp-vault
        - name: vault-plugin-helm
          command: [/var/run/argocd/argocd-cmp-server]
          image: quay.io/eformat/argocd-vault-sidecar:${IMAGE_TAG}
@@ -161,19 +166,19 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
            capabilities:
              drop:
              - ALL
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          seccompProfile:
-            type: RuntimeDefault
+           readOnlyRootFilesystem: true
+           runAsNonRoot: true
+           seccompProfile:
+             type: RuntimeDefault
          volumeMounts:
-         - mountPath: /var/run/argocd
-           name: var-files
-         - mountPath: /home/argocd/cmp-server/config
-           name: vault-plugin-helm
-         - mountPath: /home/argocd/cmp-server/plugins
-           name: plugins
-         - mountPath: /tmp
-           name: cmp-tmp-helm
+           - mountPath: /var/run/argocd
+             name: var-files
+           - mountPath: /home/argocd/cmp-server/config
+             name: vault-plugin-helm
+           - mountPath: /home/argocd/cmp-server/plugins
+             name: plugins
+           - mountPath: /tmp
+             name: cmp-tmp-helm
        - name: vault-plugin-kustomize
          command: [/var/run/argocd/argocd-cmp-server]
          image: quay.io/eformat/argocd-vault-sidecar:${IMAGE_TAG}
@@ -187,28 +192,30 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
            seccompProfile:
              type: RuntimeDefault
          volumeMounts:
-         - mountPath: /var/run/argocd
-           name: var-files
-         - mountPath: /home/argocd/cmp-server/config
-           name: vault-plugin-kustomize
-         - mountPath: /home/argocd/cmp-server/plugins
-           name: plugins
-         - mountPath: /tmp
-           name: cmp-tmp-kustomize
+           - mountPath: /var/run/argocd
+             name: var-files
+           - mountPath: /home/argocd/cmp-server/config
+             name: vault-plugin-kustomize
+           - mountPath: /home/argocd/cmp-server/plugins
+             name: plugins
+           - mountPath: /tmp
+             name: cmp-tmp-kustomize
      initialRepositories: |
-     - name: data-mesh-pattern
-       url: https://${GIT_SERVER}/${TEAM_NAME}/data-mesh-pattern.git
+       - name: data-mesh-pattern
+         url: https://${GIT_SERVER}/${TEAM_NAME}/data-mesh-pattern.git
      repositoryCredentials: |
-    - url: https://${GIT_SERVER}
-      type: git
-      passwordSecret:
-        key: password
-        name: git-auth
-      usernameSecret:
-        key: username
-        name: git-auth
+       - url: https://${GIT_SERVER}
+         type: git
+         passwordSecret:
+           key: password
+           name: git-auth
+         usernameSecret:
+           key: username
+           name: git-auth
    EOF
    ```
+   
+   And create our ConfigMap that defines the commands for the plugin.
 
    ```yaml
    oc apply -n ${TEAM_NAME}-ci-cd -f- <<EOF

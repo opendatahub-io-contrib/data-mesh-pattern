@@ -11,25 +11,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    oc login --server=https://api.${CLUSTER_DOMAIN##apps.}:6443 -u admin -p ${ADMIN_PASSWORD}
    ```
    
-   ```bash
-   oc -n ${TEAM_NAME}-ci-cd create sa ${SERVICE_ACCOUNT}
-   ```
-
-2. In OpenShift 4.11+ Service Accounts are not configured with default token secrets. Let's create it.
-
-   ```yaml
-   cat <<EOF | oc -n ${TEAM_NAME}-ci-cd apply -f -
-   apiVersion: v1
-   kind: Secret
-   metadata:
-     name: vault-token
-     annotations:
-       kubernetes.io/service-account.name: "${SERVICE_ACCOUNT}" 
-   type: kubernetes.io/service-account-token 
-   EOF
-   ```
-
-3. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
+2. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
 
    ```yaml
    cat <<EOF | oc -n ${TEAM_NAME}-ci-cd apply -f -
@@ -50,7 +32,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 
    ![secrets-argocd-git](./images/secrets-argocd-git.png)
 
-4. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
+3. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator init -key-threshold=1 -key-shares=1
@@ -73,7 +55,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    export ROOT_TOKEN=<root token>
    ```
 
-5. Unseal the vault.   
+4. Unseal the vault.   
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator unseal $UNSEAL_KEY
