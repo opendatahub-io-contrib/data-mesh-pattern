@@ -36,3 +36,29 @@ spec:
               value: "http://airflow-web.daintree-dev.svc.cluster.local:8080"
             - name: SERVER_HOST_API_URL
               value: "http://openmetadata.openmetadata.svc.cluster.local:8585/api"
+            - name: AUTHENTICATION_PROVIDER
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_PROVIDER>
+            - name: AUTHENTICATION_PUBLIC_KEYS
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_PUBLIC_KEYS>
+            - name: AUTHENTICATION_AUTHORITY
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_AUTHORITY>
+            - name: AUTHENTICATION_CLIENT_ID
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_CLIENT_ID>
+            - name: AUTHENTICATION_CALLBACK_URL
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_CALLBACK_URL>
+            - name: AUTHENTICATION_JWT_PRINCIPAL_CLAIMS
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_JWT_PRINCIPAL_CLAIMS>
+            - name: AUTHENTICATION_ENABLE_SELF_SIGNUP
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHENTICATION_ENABLE_SELF_SIGNUP>
+            - name: AUTHORIZER_ADMIN_PRINCIPALS
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHORIZER_ADMIN_PRINCIPALS>
+            - name: AUTHORIZER_INGESTION_PRINCIPALS
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHORIZER_INGESTION_PRINCIPALS>
+            - name: AUTHORIZER_PRINCIPAL_DOMAIN
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHORIZER_PRINCIPAL_DOMAIN>
+            - name: AUTHORIZER_ENFORCE_PRINCIPAL_DOMAIN
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHORIZER_ENFORCE_PRINCIPAL_DOMAIN>
+            - name: AUTHORIZER_ENABLE_SECURE_SOCKET
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#AUTHORIZER_ENABLE_SECURE_SOCKET>
+            - name: CUSTOM_OIDC_AUTHENTICATION_PROVIDER_NAME
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/openmetadata#CUSTOM_OIDC_AUTHENTICATION_PROVIDER_NAME>

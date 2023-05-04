@@ -65,6 +65,8 @@ aflow:
 - "Admin"
 grafana:
 - "Admin"
+open-metadata:
+- "Admin"
 {{- end }}
 
 {{- define "dsRole" -}}
