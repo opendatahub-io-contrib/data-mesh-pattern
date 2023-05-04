@@ -11,38 +11,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    oc login --server=https://api.${CLUSTER_DOMAIN##apps.}:6443 -u admin -p ${ADMIN_PASSWORD}
    ```
    
-   ```bash
-   oc -n ${TEAM_NAME}-ci-cd create sa ${SERVICE_ACCOUNT}
-   ```
-
-2. In OpenShift 4.11+ Service Accounts are not configured with default token secrets. Let's create it.
-
-   ```yaml
-   cat <<EOF | oc -n ${TEAM_NAME}-ci-cd apply -f -
-   apiVersion: v1
-   kind: Secret
-   metadata:
-     name: vault-token
-     annotations:
-       kubernetes.io/service-account.name: "${SERVICE_ACCOUNT}" 
-   type: kubernetes.io/service-account-token 
-   EOF
-   ```
-
-3. Link secret vault-token to sa
-
-   ```bash
-   oc -n ${TEAM_NAME}-ci-cd secrets link ${SERVICE_ACCOUNT} vault-token
-   ```
-
-4. The Service Account mst be able to read secrets and be used for authentication in our <TEAM_NAME>-ci-cd namespace. Let's create the RBAC.
-
-   ```bash
-   oc adm policy add-cluster-role-to-user edit -z ${SERVICE_ACCOUNT} -n ${TEAM_NAME}-ci-cd
-   oc adm policy add-cluster-role-to-user system:auth-delegator -z ${SERVICE_ACCOUNT} -n ${TEAM_NAME}-ci-cd
-   ```
-
-5. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
+2. To bootstrap ArgoCD, we will manually create a secret for ArgoCD to connect to GitLab, later on we will add this via GitOps and Vault instead.
 
    ```yaml
    cat <<EOF | oc -n ${TEAM_NAME}-ci-cd apply -f -
@@ -63,7 +32,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
 
    ![secrets-argocd-git](./images/secrets-argocd-git.png)
 
-6. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
+3. We need to unseal Hashi Vault to be able to start using it. Initialize the vault - we only do this once.
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator init -key-threshold=1 -key-shares=1
@@ -86,7 +55,7 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    export ROOT_TOKEN=<root token>
    ```
 
-7. Unseal the vault.   
+4. Unseal the vault.   
 
    ```bash
    oc -n data-mesh exec -ti platform-base-vault-0 -- vault operator unseal $UNSEAL_KEY
@@ -243,21 +212,11 @@ We are going to configure Hashicorp Vault as our application secret backend. A s
    period=120s
    ```
 
-   We will use the long lived Service Account token secret 
-
-   ```bash
-   export SA_TOKEN=$(oc -n ${PROJECT_NAME} get sa/${SERVICE_ACCOUNT} -o yaml | grep ${APP_NAME}-token | awk '{print $3}')
-   export SA_JWT_TOKEN=$(oc -n ${PROJECT_NAME} get secret $SA_TOKEN -o jsonpath="{.data.token}" | base64 --decode; echo)
-   export SA_CA_CRT=$(oc -n ${PROJECT_NAME} get secret $SA_TOKEN -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-   ```
-
-   Check that $SA_JWT_TOKEN is set OK. Now write this into our k8s auth config.
+   Configure the K8S auth method. It will automatically use the argocd-repo pod's own identity to authenticate with Kubernetes when querying the token review API.
 
    ```bash
    vault write auth/$CLUSTER_DOMAIN-${PROJECT_NAME}/config \
-   token_reviewer_jwt="$SA_JWT_TOKEN" \
-   kubernetes_host="$(oc whoami --show-server)" \
-   kubernetes_ca_cert="$SA_CA_CRT"
+   kubernetes_host="$(oc whoami --show-server)"
    ```
 
 21. Create the team ArgoCD Vault Plugin Secret that is used to find the correct path to the k8s auth we just created. 
