@@ -304,3 +304,55 @@ spec:
     - name: Viewer
       composite: false
       clientRole: true
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: open-metadata-daintree-dev
+  labels:
+    client: open-metadata-daintree-dev
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  realmSelector:
+    matchLabels:
+      realm: daintree-dev
+  client:
+    name: open-metadata
+    clientId: open-metadata
+    bearerOnly: false
+    protocol: openid-connect
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    clientAuthenticatorType: "client-secret"
+    secret: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#OPENMETADATA_CLIENTSECRET>
+    consentRequired: false
+    implicitFlowEnabled: true
+    authorizationServicesEnabled: false
+    publicClient: false
+    redirectUris:
+      - "*"
+    webOrigins:
+      - "*"
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    defaultRoles:
+      - "DataConsumer"
+    defaultClientScopes:
+      - "profile"
+      - "email"
+      - "sub"
+  roles:
+    - name: DataConsumer
+      composite: false
+      clientRole: true
+    - name: Admin
+      composite: false
+      clientRole: true
+    - name: DataSteward
+      composite: false
+      clientRole: true
