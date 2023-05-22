@@ -29,7 +29,7 @@ spec:
               tag: 2.5.1
             imageGitSync:
               repository: image-registry.openshift-image-registry.svc:5000/rainforest-ci-cd/git-sync
-              tag: v3.5.1
+              tag: v3.6.6
             gitSync:
               repo: "https://github.com/opendatahub-io-contrib/daintree-dev-dags.git"
               branch: "main"
