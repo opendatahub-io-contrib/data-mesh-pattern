@@ -1,6 +1,6 @@
 # git-sync
 
-Offline source code and build of
+Online build of git-sync. If this needs to be offline, replace the git clone in the Dockerfile with local source code.
 
 - https://github.com/kubernetes/git-sync
 

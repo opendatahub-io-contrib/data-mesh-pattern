@@ -1,7 +1,0 @@
-/bin
-/.go
-/.push-*
-/.container-*
-/.dockerfile-*
-/.qemu-initialized
-/.licenses
