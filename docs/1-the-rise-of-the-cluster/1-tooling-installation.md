@@ -1,7 +1,7 @@
 ## Data Mesh Platform Setup
 
 <p class="warn">
-    ⛷️ <b>NOTE</b> ⛷️ - You need an OpenShift 4.11+ cluster with cluster-admin privilege to run the <strong>Data Mesh Platform</strong>. At a minimum, you need an AWS account and a RedHat developer account to create a Single Node OpenShift instance. If you are a RedHat associate or partner - login to RedHat's RHPDS system and order the "AWS Blank Open Environment" sandbox. If you already have admin access to an OpenShift 4.11+ cluster - you can skip the cluster install steps.
+    ⛷️ <b>NOTE</b> ⛷️ - You need an OpenShift 4.11+ cluster (the instructions target v4.13) with cluster-admin privilege to run the <strong>Data Mesh Platform</strong>. At a minimum, you need an AWS account and a RedHat developer account to create a Single Node OpenShift instance. If you are a RedHat associate or partner - login to RedHat's RHPDS system and order the "AWS Blank Open Environment" sandbox. If you already have admin access to an OpenShift 4.11+ cluster - you can skip the cluster install steps.
 </p>
 
 ![rhpds](./images/rhpds.png)
@@ -268,8 +268,9 @@ To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM O
    EOF
    ```
 
-   OpenShift v4.12
+   OpenShift v4.12+ e.g. set channel - stable-4.12, stable-4.13
    ```bash
+   CHANNEL=stable-4.13
    cat <<EOF | oc apply -f-
    apiVersion: operators.coreos.com/v1alpha1
    kind: Subscription
@@ -279,7 +280,7 @@ To keep things cheap, I use a 200GB gp3 volume and configure the OpenShift LVM O
      name: lvms-operator
      namespace: openshift-storage
    spec:
-     channel: stable-4.12
+     channel: stable-4.13
      installPlanApproval: Automatic
      name: lvms-operator
      source: redhat-operators
@@ -508,6 +509,10 @@ The data mesh base tooling and operators are configured using a helm chart. This
    ```bash
    helm dep up
    ```
+ 
+<p class="warn">
+    ⛷️ <b>NOTE</b> ⛷️ - In OpenShift v4.13+ the operator for `openshift-cert-manager` changed names. You will need to update the `cluster-dev-values.yaml` and enable `openshift-cert-manager-operator-pre-413` operator config and disable `openshift-cert-manager-operator` if installing to OpenShift v4.11 and v4.12.
+</p>
 
    ```bash
    helm upgrade --install platform-base . \
