@@ -40,7 +40,7 @@ spec:
       ref: main
       uri: https://github.com/opendatahub-io-contrib/data-mesh-pattern
     type: Git
-    contextDir: supply-chain/git-sync/git-sync
+    contextDir: supply-chain/git-sync
     sourceSecret:
       name: git-auth
   strategy:
