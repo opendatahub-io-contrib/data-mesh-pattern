@@ -22,7 +22,7 @@ My favourite development environment has become SNO on SPOT in AWS. With this se
    export SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
    export INSTANCE_TYPE=m6a.4xlarge
    export ROOT_VOLUME_SIZE=200
-   export OPENSHIFT_VERSION=4.11.25
+   export OPENSHIFT_VERSION=4.13.1
    
    mkdir -p ~/tmp/sno-foo && cd ~/tmp/sno-foo
    curl -Ls https://raw.githubusercontent.com/eformat/sno-for-100/main/sno-for-100.sh | bash -s -- -d
