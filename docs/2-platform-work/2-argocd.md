@@ -72,7 +72,7 @@ ArgoCD is a gitops controller. We will use the OpenShift Gitops operator to depl
 7. Setup our ArgoCD configuration. There is quite a bit of detail here. We configure the [ArgoCD Vault Plugin](https://github.com/argoproj-labs/argocd-vault-plugin) so that we can integrate our secrets' management with ArgoCD.
 
    ```bash
-   export IMAGE_TAG=2.7.2
+   export IMAGE_TAG=2.7.5
    ```
 
    ```yaml
