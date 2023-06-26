@@ -30,6 +30,7 @@ Ideally we could automate this S3 configuration. But we keep this separate for n
    ```bash
    mc mb dev/airflow-${PROJECT_NAME}
    mc mb dev/hive-${PROJECT_NAME}
+   mc mb dev/hive-iceberg-${PROJECT_NAME}
    mc mb dev/pachyderm
    mc mb dev/iceberg
    mc mb dev/data

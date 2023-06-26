@@ -81,5 +81,12 @@ catalogs:
   # Hive Demo Catalog
   - name: demo
     enabled: true
+    connector: hive
+    replicaCountHive: 1
+    replicaCountDb: 1
+  # Hive Iceberg Catalog
+  - name: iceberg
+    enabled: true
+    connector: iceberg
     replicaCountHive: 1
     replicaCountDb: 1

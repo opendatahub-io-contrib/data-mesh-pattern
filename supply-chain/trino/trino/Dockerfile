@@ -47,7 +47,7 @@ COPY --chown=trino:root trino/default/etc $TRINO_HOME
 RUN chmod 755 /usr/lib/trino/jmx_exporter.jar /usr/bin/trino
 
 # Remove all unused plugins
-RUN find /usr/lib/trino/plugin -maxdepth 1 -type d ! \( -name plugin -o -name hive -o -name blackhole -o -name jmx -o -name memory -o -name postgresql -o -name tpcds -o -name tpch -o -name password-authenticators -o -name thrift -o -name sqlserver -o -name oracle \) -exec rm -rf {} \;
+RUN find /usr/lib/trino/plugin -maxdepth 1 -type d ! \( -name plugin -o -name hive -o -name blackhole -o -name jmx -o -name memory -o -name postgresql -o -name tpcds -o -name tpch -o -name password-authenticators -o -name thrift -o -name sqlserver -o -name oracle -o -name iceberg \) -exec rm -rf {} \;
 
 # certs
 COPY cacerts.pem /etc/pki/ca-trust/source/anchors/cacerts.pem
