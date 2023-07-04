@@ -1,0 +1,47 @@
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_VENDOR
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_VENDOR>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_CONFIG_URL_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_CONFIG_URL_KEYCLOAK_PRIMARY>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_CLIENT_ID_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_CLIENT_ID_KEYCLOAK_PRIMARY>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_CLIENT_SECRET_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/keycloak#MINIO_CLIENTSECRET>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_DISPLAY_NAME_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_DISPLAY_NAME_KEYCLOAK_PRIMARY>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_SCOPES_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_SCOPES_KEYCLOAK_PRIMARY>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_IDENTITY_OPENID_CLAIM_NAME_KEYCLOAK_PRIMARY
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_IDENTITY_OPENID_CLAIM_NAME_KEYCLOAK_PRIMARY>
+
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: MINIO_BROWSER_REDIRECT_URL
+    value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_BROWSER_REDIRECT_URL>

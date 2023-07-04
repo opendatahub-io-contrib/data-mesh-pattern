@@ -13,6 +13,8 @@ spec:
     path: gitops/minio/overlays/cluster-dev
     repoURL: https://github.com/opendatahub-io-contrib/data-mesh-pattern
     targetRevision: main
+    plugin:
+      name: argocd-vault-plugin-kustomize
   syncPolicy:
     automated:
       prune: true

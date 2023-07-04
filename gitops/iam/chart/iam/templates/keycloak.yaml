@@ -29,6 +29,10 @@ spec:
 {{- else }}
 {{- include "viewRole" . | nindent 6 }}
 {{- end }}
+{{- if .attributes }}
+    attributes:
+      {{- toYaml .attributes | nindent 6 }}
+{{- end }}
   realmSelector:
     matchLabels:
       realm: {{ $realm }}
