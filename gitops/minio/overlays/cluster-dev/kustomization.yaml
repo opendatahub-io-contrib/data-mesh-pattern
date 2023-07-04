@@ -2,3 +2,11 @@ resources:
 - ../../base
 
 namespace: rainforest-ci-cd
+
+patchesJson6902:
+  - target:
+      version: v1
+      group: apps
+      kind: Deployment
+      name: minio
+    path: minio-dc.yaml

@@ -12,3 +12,6 @@ users:
       userId: "5e6ba846-f869-481b-912b-3c9c78d0db94"
     clientRole: adminRole
     clusterRole: edit
+    attributes:
+      policy:
+      - consoleAdmin

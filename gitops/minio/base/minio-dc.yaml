@@ -43,27 +43,20 @@ spec:
           args:
             - server
             - /storage
-#            - --config-dir=/config
             - --console-address=:33933
           env:
             - name: MINIO_ACCESS_KEY
-              value: "minio"
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_ROOT_USER>
             - name: MINIO_SECRET_KEY
-              value: "minio1234"
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_ROOT_PASSWORD>
             - name: MINIO_PROMETHEUS_AUTH_TYPE
               value: "public"
             - name: MINIO_TRACE
               value: "true"
             - name: MINIO_ROOT_USER
-              value: "minio"
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_ROOT_USER>
             - name: MINIO_ROOT_PASSWORD
-              value: "minio1234"
-            # - name: MINIO_IDENTITY_OPENID_CONFIG_URL
-            #   value: http://$(KEYCLOAK_URL)/auth/realms/master/.well-known/openid-configuration
-            # - name: MINIO_IDENTITY_OPENID_CLIENT_ID
-            #   value: "minio"
-            # - name: MINIO_IDENTITY_OPENID_CLIENT_SECRET
-            #   value: "$(CLIENT_SECRET)"
+              value: <path:kv/data/student/rainforest-ci-cd/daintree-dev/minio#MINIO_ROOT_PASSWORD>
           ports:
             - containerPort: 9000
             - containerPort: 33933
