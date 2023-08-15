@@ -18,7 +18,7 @@ RUN alternatives --install /usr/bin/unversioned-python python /opt/app-root/bin/
 ADD base/0.1.5/pip.conf /etc/.
 RUN /opt/app-root/bin/pip3 install jinja2==3.1.2
 RUN /opt/app-root/bin/pip3 install certifi
-RUN /opt/app-root/bin/pip3 install jupyterlab-s3-browser==0.12.0
+RUN /opt/app-root/bin/pip3 install jupyterlab-s3-browser
 RUN /opt/app-root/bin/pip3 install great_expectations==0.15.15
 
 #enable extension
