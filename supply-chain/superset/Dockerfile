@@ -49,7 +49,7 @@ RUN dnf clean all && \
                  python-ldap>=3.4.3 \
                  Babel>=2.12.1 \
                  cryptography>=38.0.4 \
-                 Werkzeug>=2.0.3 \
+                 Werkzeug==2.0.3 \
                  flask>=2.0.3 \
                  pyopenssl>=22.1.0 \
                  pyhive \
@@ -58,7 +58,9 @@ RUN dnf clean all && \
                  trio_websocket>=0.9.2 \
                  wtforms==2.3.3 \
                  wtforms_ext>=0.0.5 \
-                 jinja2>=3.0.1
+                 jinja2>=3.0.1 \
+                 thrift>=0.16.0 \
+                 marshmallow_enum>=1.5.1
 
 VOLUME /etc/superset \
        /var/lib/superset
