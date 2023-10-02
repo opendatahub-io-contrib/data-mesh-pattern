@@ -50,3 +50,7 @@ The list of open source components integrated into the pattern and their respect
 [12]: https://fybrik.io/v1.2/
 [13]: https://superset.apache.org/
 [14]: https://pandas.pydata.org/
+
+## Attribution
+
+The original author [eformat](https://github.com/eformat) and source for this repo can be found [here](https://github.com/eformat/rainforest-docs).
