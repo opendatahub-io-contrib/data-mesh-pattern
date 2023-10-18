@@ -11,9 +11,9 @@
 #  limitations under the License.
 
 echo "Initializing OpenMetadata Server...";
-cd /openmetadata-0.13.2/
+cd /openmetadata-1.1.7/
 echo "Migrating the database to the latest version and the indexes in ElasticSearch...";
-./bootstrap/bootstrap_storage.sh migrate-all
+./bootstrap/bootstrap_storage.sh
 echo "    ||||||| "
 echo "  ||||   ||||      ____ "
 echo " ||||     ||||    / __ \ "
